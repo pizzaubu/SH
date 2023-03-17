@@ -1,0 +1,33 @@
+{% extends 'base.html' %} {% block content %}
+<div class="container">
+    <h1>รายการคูปอง</h1>
+    <a href="{% url 'coupons:add_coupon' %}" class="btn btn-primary mb-3">เพิ่มคูปอง</a>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>รหัสคูปอง</th>
+                <th>วันเริ่มใช้งาน</th>
+                <th>วันสิ้นสุดใช้งาน</th>
+                <th>ส่วนลด</th>
+                <th>สถานะ</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for coupon in coupons %}
+            <tr>
+                <td>{{ coupon.code }}</td>
+                <td>{{ coupon.valid_from }}</td>
+                <td>{{ coupon.valid_to }}</td>
+                <td>{{ coupon.discount }}%</td>
+                <td>{{ coupon.is_active|yesno:"ใช้งาน,ไม่ใช้งาน" }}</td>
+                <td>
+                    <a href="{% url 'coupons:edit_coupon' coupon.pk %}" class="btn btn-primary">แก้ไข</a>
+                    <a href="{% url 'coupons:delete_coupon' coupon.pk %}" class="btn btn-danger">ลบ</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

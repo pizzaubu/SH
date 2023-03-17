@@ -1,8 +1,9 @@
 from django.db import models
 from category.models import Category
-from account.models import Account
+from accounts.models import Account
 from django.urls import reverse
 from django.db.models import Avg, Count
+from django.core.validators import MaxValueValidator, MinValueValidator
 
 class Product(models.Model):
     product_name = models.CharField(max_length=200, unique=True)
@@ -51,31 +52,14 @@ class ReviewRating(models.Model):
     def __str__(self):
         return self.subject
 
-class VariationManager(models.Manager):
-    def coupons(self):
-        return super(VariationManager, self).filter(variation_category='coupon', is_active=True)
-
-variation_category_choice = (
-    ('coupon', 'coupon'),
-)
-
-class Variation(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    variation_category = models.CharField(max_length=100, choices=variation_category_choice)
-    variation_value = models.CharField(max_length=100)
-    is_active = models.BooleanField(default=True)
-    created_date = models.DateTimeField(auto_now=True)
-
-    objects = VariationManager()
-
-    def __str__(self):
-        return self.variation_value
-
 class Coupon(models.Model):
-    code = models.CharField(max_length=15)
-    amount = models.FloatField()
-    variation = models.ForeignKey(Variation, on_delete=models.CASCADE)
+    code = models.CharField(max_length=50, unique=True)
+    valid_from = models.DateTimeField()
+    valid_to = models.DateTimeField()
+    discount = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(100)])
+    is_active = models.BooleanField(default=False)
 
     def __str__(self):
         return self.code
+
 

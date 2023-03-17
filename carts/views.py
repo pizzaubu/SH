@@ -2,7 +2,7 @@ from django.shortcuts import render
 
 # Create your views here.
 from django.shortcuts import render, redirect, get_object_or_404
-from store.models import Product, Variation
+from store.models import Product
 from .models import Cart, CartItem
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.decorators import login_required
@@ -33,23 +33,6 @@ def _calculate_tax_and_grand_total(total):
     grand_total = total + tax
     return tax, grand_total
 
-def _get_product_variations(request):
-    product_variation = []
-    if request.method == 'POST':
-        for item in request.POST:
-            key = item
-            value = request.POST[key]
-
-            try:
-                variation = Variation.objects.get(
-                    product=product, 
-                    variation_category__iexact=key, 
-                    variation_value__iexact=value
-                )
-                product_variation.append(variation)
-            except:
-                pass
-    return product_variation
 
 # ... (เก็บโค้ดฟังก์ชัน add_cart, remove_cart, remove_cart_item ไว้ที่นี่) ...
 

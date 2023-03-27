@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>ชำระเงิน</h1>
+    <form method="post" action="{% url 'checkout' %}">
+        {% csrf_token %}
+        <div class="form-group">
+            <label>ชื่อ</label>
+            <input type="text" name="first_name" required />
+        </div>
+        <div class="form-group">
+            <label>นามสกุล</label>
+            <input type="text" name="last_name" required />
+        </div>
+        <div class="form-group">
+            <label>เบอร์โทร</label>
+            <input type="text" name="phone" required />
+        </div>
+        <div class="form-group">
+            <label>อีเมล</label>
+            <input type="email" name="email" required />
+        </div>
+        <div class="form-group">
+            <label>ที่อยู่ 1</label>
+            <input type="text" name="address_line_1" required />
+        </div>
+        <div class="form-group">
+            <label>ที่อยู่ 2 (ไม่จำเป็น)</label>
+            <input type="text" name="address_line_2" />
+        </div>
+        <div class="form-group">
+            <label>ประเทศ</label>
+            <input type="text" name="country" required />
+        </div>
+        <div class="form-group">
+            <label>รัฐ / จังหวัด</label>
+            <input type="text" name="state" required />
+        </div>
+        <div class="form-group">
+            <label>เมือง</label>
+            <input type="text" name="city" required />
+        </div>
+        <div class="form-group">
+            <label>บันทึกสำหรับคำสั่งซื้อ (ไม่จำเป็น)</label>
+            <textarea name="order_note" rows="3"></textarea>
+        </div>
+        <div class="form-group">
+            <input type="submit" value="สั่งซื้อ" />
+        </div>
+    </form>
+{% endblock %}

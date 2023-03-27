@@ -1,0 +1,62 @@
+{% extends "base.html" %} 
+{% block content %}
+<h1>{{ single_product.product_name }}</h1>
+
+<div class="product-detail">
+    <img src="{{ single_product.images.url }}" alt="{{ single_product.product_name }}" />
+    <p>Price: {{ single_product.price }}</p>
+    <p>{{ single_product.description }}</p>
+    <p>Category: {{ single_product.category.name }}</p>
+    <p>Reviews: {{ single_product.countReview }} | Average Rating: {{ single_product.averageReview }}</p>
+    {% if in_cart %}
+    <p>Already in cart</p>
+    {% else %}
+    <form method="post" action="{% url 'add_cart' single_product.id %}">
+        {% csrf_token %}
+        <input type="number" name="quantity" value="1" min="1" max="{{ single_product.stock }}" />
+        <input type="submit" value="Add to Cart" />
+    </form>
+    {% endif %}
+</div>
+
+<div class="product-reviews">
+    <h2>Reviews</h2>
+    {% for review in reviews %}
+    <div class="review">
+        <h3>{{ review.subject }}</h3>
+        <p>By: {{ review.user }}</p>
+        <p>Rating: {{ review.rating }}</p>
+        <p>{{ review.review }}</p>
+    </div>
+    {% empty %}
+    <p>No reviews yet.</p>
+    {% endfor %}
+</div>
+
+{% if request.user.is_authenticated %}
+<div class="add-review">
+    <h2>Add a Review</h2>
+    <form method="post" action="{% url 'submit_review' single_product.id %}">
+        {% csrf_token %}
+        <label for="subject">Subject:</label>
+        <input type="text" name="subject" required />
+
+        <label for="rating">Rating:</label>
+        <select name="rating" required>
+                <option value="1">1 - Poor</option>
+                <option value="2">2 - Fair</option>
+                <option value="3">3 - Good</option>
+                <option value="4">4 - Very Good</option>
+                <option value="5">5 - Excellent</option>
+            </select>
+
+        <label for="review">Review:</label>
+        <textarea name="review" rows="5" required></textarea>
+
+        <input type="submit" value="Submit Review" />
+    </form>
+</div>
+{% else %}
+<p>You must <a href="{% url 'login' %}">log in</a> to submit a review.</p>
+{% endif %} 
+{% endblock %}

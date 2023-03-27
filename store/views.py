@@ -1,15 +1,17 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Product, ReviewRating
+from .models import Product, ReviewRating,Coupon
 from category.models import Category
 from carts.models import CartItem
 from django.db.models import Q
-
+from django.utils import timezone
 from carts.views import _cart_id
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.http import HttpResponse
 from .forms import ReviewForm
 from django.contrib import messages
 from orders.models import OrderProduct
+from django.http import JsonResponse
+
 
 
 def store(request, category_slug=None):
@@ -99,3 +101,33 @@ def submit_review(request, product_id):
                 data.save()
                 messages.success(request, 'Thank you! Your review has been submitted.')
                 return redirect(url)
+
+def get_coupon(code):
+    try:
+        coupon = Coupon.objects.get(code=code)
+
+        if coupon.is_active and (coupon.valid_from <= timezone.now()) and (coupon.valid_to >= timezone.now()):
+            return coupon
+        else:
+            return None
+    except Coupon.DoesNotExist:
+        return None
+    
+
+def apply_coupon(request):
+    code = request.GET.get('code', '')
+    coupon = get_coupon(code)
+
+    if coupon:
+        data = {
+            'success': True,
+            'code': coupon.code,
+            'discount': coupon.discount,
+        }
+    else:
+        data = {
+            'success': False,
+            'message': 'Invalid coupon code or the coupon is expired.',
+        }
+
+    return JsonResponse(data)

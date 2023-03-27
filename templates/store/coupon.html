@@ -1,33 +1,50 @@
-{% extends 'base.html' %} {% block content %}
-<div class="container">
-    <h1>รายการคูปอง</h1>
-    <a href="{% url 'coupons:add_coupon' %}" class="btn btn-primary mb-3">เพิ่มคูปอง</a>
-    <table class="table">
-        <thead>
-            <tr>
-                <th>รหัสคูปอง</th>
-                <th>วันเริ่มใช้งาน</th>
-                <th>วันสิ้นสุดใช้งาน</th>
-                <th>ส่วนลด</th>
-                <th>สถานะ</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Available Coupons</h1>
+    <div id="coupon-list">
+        {% if coupons %}
+            <ul>
             {% for coupon in coupons %}
-            <tr>
-                <td>{{ coupon.code }}</td>
-                <td>{{ coupon.valid_from }}</td>
-                <td>{{ coupon.valid_to }}</td>
-                <td>{{ coupon.discount }}%</td>
-                <td>{{ coupon.is_active|yesno:"ใช้งาน,ไม่ใช้งาน" }}</td>
-                <td>
-                    <a href="{% url 'coupons:edit_coupon' coupon.pk %}" class="btn btn-primary">แก้ไข</a>
-                    <a href="{% url 'coupons:delete_coupon' coupon.pk %}" class="btn btn-danger">ลบ</a>
-                </td>
-            </tr>
+                <li>
+                    <strong>{{ coupon.code }}</strong> - {{ coupon.discount }}% Discount
+                    <button onclick="applyCoupon('{{ coupon.code }}')">Apply</button>
+                </li>
             {% endfor %}
-        </tbody>
-    </table>
-</div>
-{% endblock %}
+            </ul>
+        {% else %}
+            <p>ไม่มีคูปองที่สามารถใช้งานได้</p>
+        {% endif %}
+    </div>
+
+    <div id="apply-coupon">
+        <h2>Apply a Coupon</h2>
+        <input type="text" id="coupon_code" placeholder="Enter coupon code">
+        <button onclick="applyCoupon()">Apply</button>
+        <p id="coupon-message"></p>
+    </div>
+
+    <script>
+        function applyCoupon(code) {
+            if (!code) {
+                code = document.getElementById("coupon_code").value;
+            }
+            if (!code) {
+                return;
+            }
+            
+            const xhr = new XMLHttpRequest();
+            xhr.open("GET", "/apply-coupon?code=" + encodeURIComponent(code));
+            xhr.onload = function() {
+                const response = JSON.parse(xhr.responseText);
+    
+                if (response.success) {
+                    document.getElementById("coupon-message").innerText = "Coupon applied! Discount: " + response.discount + "%";
+                } else {
+                    document.getElementById("coupon-message").innerText = response.message;
+                }
+            };
+            xhr.send();
+        }
+    </script>
+{% endblock %}    

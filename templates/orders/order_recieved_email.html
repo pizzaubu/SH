@@ -1,0 +1,104 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Confirmation Email</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            font-size: 16px;
+            line-height: 1.5;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        .email-container {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .email-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .email-header img {
+            max-width: 150px;
+        }
+        .email-content {
+            background-color: #f8f8f8;
+            padding: 20px;
+            border-radius: 5px;
+        }
+        .email-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .email-text {
+            margin-bottom: 20px;
+        }
+        .email-details {
+            margin-bottom: 20px;
+        }
+        .details-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .details-text {
+            margin-left: 15px;
+        }
+        .email-footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="email-header">
+            <img src="{% static 'images/icon.png' %}" alt="Your Logo">
+        </div>
+        <div class="email-content">
+            <div class="email-title">Order Confirmation</div>
+            <div class="email-text">
+                Dear {{ order.full_name }},
+            </div>
+            <div class="email-text">
+                Thank you for your order! Your order number is <strong>{{ order.order_number }}</strong>.
+            </div>
+            <div class="email-details">
+                <div class="details-title">Shipping Address:</div>
+                <div class="details-text">
+                    {{ order.full_address }}, {{ order.city }}, {{ order.state }}, {{ order.country }}
+                </div>
+            </div>
+            <div class="email-details">
+                <div class="details-title">Order Details:</div>
+                <div class="details-text">
+                    <ul>
+                    {% for item in order_items %}
+                        <li>{{ item.product.product_name }} (Quantity: {{ item.quantity }}) - {{ item.product_price }} x {{ item.quantity }} = {{ item.product_price|multiply:item.quantity }}</li>
+                    {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            <div class="email-details">
+                <div class="details-title">Order Total:</div>
+                <div class="details-text">
+                    {{ order.order_total }}
+                </div>
+            </div>
+        </div>
+        <div class="email-footer">
+            If you have any questions, please contact us at <a href="mailto:support@example.com"></a> or call us at +66-1234-5678.
+        </div>
+            </div>
+            
+</body>
+</html>

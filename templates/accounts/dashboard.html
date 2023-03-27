@@ -1,0 +1,94 @@
+{% extends 'base.html' %} {% block content %}
+
+<section class="section-content padding-y bg">
+    {% include 'includes/alerts.html' %}
+    <div class="container">
+        <div class="row">
+            <aside class="col-md-3">
+                <!--   SIDEBAR   -->
+                <ul class="list-group">
+                    <a class="list-group-item active" href="#"> ประวัติการสั่งซื้อของฉัน </a>
+                    <a class="list-group-item" href="#"> ธุรกรรม </a>
+                    <a class="list-group-item" href="#"> การคืนและการคืนเงิน </a>
+                    <a class="list-group-item" href="#"> การตั้งค่า </a>
+                    <a class="list-group-item" href="#"> รายการขายของฉัน </a>
+                    <a class="list-group-item" href="#"> รับคำสั่งซื้อ </a>
+                </ul>
+                <br>
+                <a class="btn btn-light btn-block" href="{% url 'logout' %}"> <i class="fa fa-power-off"></i> <span class="text">ออกจากระบบ</span> </a>
+                <!--   SIDEBAR .//END   -->
+            </aside>
+            <main class="col-md-9">
+                <article class="card">
+                    <header class="card-header">
+                        <strong class="d-inline-block mr-3">รหัสคำสั่งซื้อ: 6123456789</strong>
+                        <span>วันที่สั่งซื้อ: 16 ธันวาคม 2018</span>
+                    </header>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <h6 class="text-muted">จัดส่งถึง</h6>
+                                <p>Michael Jackson <br> โทร +1234567890 อีเมล: myname@pixsellz.com <br> ที่อยู่: เลขที่บ้าน, ชื่ออาคาร, ถนน 123, ทาชเคนต์, UZB <br> รหัสไปรษณีย์: 100123
+                                </p>
+                            </div>
+                            <div class="col-md-4">
+                                <h6 class="text-muted">การชำระเงิน</h6>
+                                <span class="text-success">
+								<i class="fab fa-lg fa-cc-scb"></i>
+								SCB **** 7397
+								</span>
+                                <p>Subtotal: $356 <br> ค่าจัดส่ง: $56 <br>
+                                    <span class="b">รวม: $456 </span>
+                                </p>
+                            </div>
+                        </div>
+                        <!-- row.// -->
+                    </div>
+                    <!-- card-body .// -->
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <tr>
+                                <td width="65">
+                                    <img src="../images/items/1.jpg" class="img-xs border">
+                                </td>
+                                <td>
+                                    <p class="title mb-0">ชื่อสินค้าตรงนี้ </p>
+                                    <var class="price text-muted">USD 145</var>
+                                </td>
+                                <td> ผู้ขาย <br> Nike clothing </td>
+                                <td width="250"> <a href="#" class="btn btn-outline-primary">ติดตามคำสั่งซื้อ</a> <a href="#" class="btn btn-light"> รายละเอียด </a> </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <img src="../images/items/2.jpg" class="img-xs border">
+                                </td>
+                                <td>
+                                    <p class="title mb-0">ชื่ออื่น ๆ ตรงนี้ </p>
+                                    <var class="price text-muted">USD 15</var>
+                                </td>
+                                <td> ผู้ขาย <br> ABC shop </td>
+                                <td> <a href="#" class="btn btn-outline-primary">ติดตามคำสั่งซื้อ</a> <a href="#" class="btn btn-light"> รายละเอียด </a> </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <img src="../images/items/3.jpg" class="img-xs border">
+                                </td>
+                                <td>
+                                    <p class="title mb-0">ชื่อของสินค้าตรงนี้ </p>
+                                    <var class="price text-muted">USD 145</var>
+                                </td>
+                                <td> ผู้ขาย <br> Wallmart </td>
+                                <td> <a href="#" class="btn btn-outline-primary">ติดตามคำสั่งซื้อ</a> <a href="#" class="btn btn-light"> รายละเอียด </a> </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <!-- table-responsive .end// -->
+                </article>
+                <!-- order-group.// -->
+            </main>
+        </div>
+        <!-- row.// -->
+    </div>
+
+</section>
+{% endblock %}

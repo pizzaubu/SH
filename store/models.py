@@ -4,6 +4,8 @@ from accounts.models import Account
 from django.urls import reverse
 from django.db.models import Avg, Count
 from django.core.validators import MaxValueValidator, MinValueValidator
+from django import forms
+from django.utils import timezone
 
 class Product(models.Model):
     product_name = models.CharField(max_length=200, unique=True)
@@ -43,7 +45,7 @@ class ReviewRating(models.Model):
     user = models.ForeignKey(Account, on_delete=models.CASCADE)
     subject = models.CharField(max_length=100, blank=True)
     review = models.TextField(max_length=500, blank=True)
-    rating = models.FloatField()
+    rating = models.FloatField(choices=[(1,"1 star"),(2,"2 star"),(3,"3 star"), (4,"4 star"), (5,"5 star")])
     ip = models.CharField(max_length=20, blank=True)
     status = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -61,5 +63,24 @@ class Coupon(models.Model):
 
     def __str__(self):
         return self.code
+    
+    def get_coupon(self, code): # code = 6877725454
+        try:
+            coupon = Coupon.objects.get(code=code)
+            """
+                coupon = {
+                    code: 6877725454
+                    valid_from: April 29, 2023, 8:13 a.m.
+                    valid_to:
+                    discount:
+                    is_active:
+                }
+            """
+            if coupon.is_active and (coupon.valid_from <= timezone.now()) and (coupon.valid_to >= timezone.now()):
+                return coupon
+            else:
+                return None
+        except Coupon.DoesNotExist:
+            return None
 
 

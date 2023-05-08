@@ -1,122 +1,92 @@
 from django.shortcuts import render, redirect
-from .forms import RegistrationForm
+from .forms import RegistrationForm,LoginForm
 from .models import Account
 from django.contrib import messages, auth
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
-
-# Verification email
 from django.contrib.sites.shortcuts import get_current_site
 from django.template.loader import render_to_string
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import EmailMessage
-
+from django.contrib.auth.models import User
 from carts.views import _cart_id
 from carts.models import Cart, CartItem
 import requests
+from django.contrib.auth import authenticate, login
+from orders.forms import OrderForm
+from orders.models import Order
 
+def generate_unique_username(username_base):
+    username = username_base
+    counter = 1
+
+    while User.objects.filter(username=username).exists():
+        username = f"{username_base}{counter}"
+        counter += 1
+
+    return username
 
 def register(request):
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
         if form.is_valid():
-            first_name = form.cleaned_data['first_name']
+            first_name = form.cleaned_data['first_name'] # test2
             last_name = form.cleaned_data['last_name']
             phone_number = form.cleaned_data['phone_number']
             email = form.cleaned_data['email']
             password = form.cleaned_data['password']
+            address = form.cleaned_data['address']
             username = email.split("@")[0]
-            user = Account.objects.create_user(first_name=first_name, last_name=last_name, email=email, username=username, password=password)
+            user = Account.objects.create_user(first_name=first_name, last_name=last_name, email=email, username=username, password=password,address=address)
             user.phone_number = phone_number
+            user.is_active = True  # ให้ user นี้เปิดใช้งาน
             user.save()
 
-            # การเปิดใช้งานผู้ใช้
-            current_site = get_current_site(request)
-            mail_subject = 'กรุณายืนยันการเปิดใช้งานบัญชีของคุณ'
-            message = render_to_string('accounts/account_verification_email.html', {
-                'user': user,
-                'domain': current_site,
-                'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-                'token': default_token_generator.make_token(user),
-            })
-            to_email = email
-            send_email = EmailMessage(mail_subject, message, to=[to_email])
-            send_email.send()
-            # messages.success(request, 'Thank you for registering with us. We have sent you a verification email to your email address [rathan.kumar@gmail.com]. Please verify it.')
-            return redirect('/accounts/login/?command=verification&email='+email)
+        # การเปิดใช้งานผู้ใช้
+        """current_site = get_current_site(request)
+        mail_subject = 'กรุณายืนยันการเปิดใช้งานบัญชีของคุณ'
+        message = render_to_string('accounts/account_verification_email.html', {
+            'user': user,
+            'domain': current_site,
+            'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+            'token': default_token_generator.make_token(user),
+        })
+        to_email = email
+        send_email = EmailMessage(mail_subject, message, to=[to_email])
+        send_email.send()"""
+        # messages.success(request, 'Thank you for registering with us. We have sent you a verification email to your email address [rathan.kumar@gmail.com]. Please verify it.')
+        #return redirect('/accounts/login/?command=verification&email='+email)
+        messages.success(request, 'ลงทะเบียนสำเร็จกรุณาล๊อคอิน')
+        return redirect('login')
     else:
         form = RegistrationForm()
-    context = {
-        'form': form,
-    }
-    return render(request, 'accounts/register.html', context)
+        context = {
+            'form': form,
+        }
+        return render(request, 'accounts/register.html', context)
+
+            
 
 
-def login(request):
+
+def do_login(request):
     if request.method == 'POST':
-        email = request.POST['email']
-        password = request.POST['password']
-
-        user = auth.authenticate(email=email, password=password)
-
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+        user = authenticate(request, email=username, password=password)
         if user is not None:
-            try:
-                cart = Cart.objects.get(cart_id=_cart_id(request))
-                is_cart_item_exists = CartItem.objects.filter(cart=cart).exists()
-                if is_cart_item_exists:
-                    cart_item = CartItem.objects.filter(cart=cart)
-
-                    # การเข้าถึงความแตกต่างของผลิตภัณฑ์โดยรหัสตะกร้าสินค้า
-                    product_variation = []
-                    for item in cart_item:
-                        variation = item.variations.all()
-                        product_variation.append(list(variation))
-
-                    # ดึงรายการตะกร้าสินค้าของผู้ใช้เพื่อเข้าถึงความแตกต่างของผลิตภัณฑ์ของเขา
-                    cart_item = CartItem.objects.filter(user=user)
-                    ex_var_list = []
-                    id = []
-                    for item in cart_item:
-                        existing_variation = item.variations.all()
-                        ex_var_list.append(list(existing_variation))
-                        id.append(item.id)
-
-                    # product_variation = [1, 2, 3, 4, 6]
-                    # ex_var_list = [4, 6, 3, 5]
-
-                    for pr in product_variation:
-                        if pr in ex_var_list:
-                            index = ex_var_list.index(pr)
-                            item_id = id[index]
-                            item = CartItem.objects.get(id=item_id)
-                            item.quantity += 1
-                            item.user = user
-                            item.save()
-                        else:
-                            cart_item = CartItem.objects.filter(cart=cart)
-                            for item in cart_item:
-                                item.user = user
-                                item.save()
-            except:
-                pass
-            auth.login(request, user)
-            messages.success(request, 'คุณลงชื่อเข้าใช้เรียบร้อยแล้ว')
-            url = request.META.get('HTTP_REFERER')
-            try:
-                query = requests.utils.urlparse(url).query
-                # next=/cart/checkout/
-                params = dict(x.split('=') for x in query.split('&'))
-                if 'next' in params:
-                    nextPage = params['next']
-                    return redirect(nextPage)                
-            except:
-                return redirect('dashboard')
-        else:
-            messages.error(request, 'ข้อมูลการเข้าสู่ระบบไม่ถูกต้อง')
-            return redirect('login')
-    return render(request, 'accounts/login.html')
+            login(request, user)
+            return redirect("/")
+        else: 
+            return redirect("login")
+    else:
+        login_forms = LoginForm()
+        context = {
+            'login_forms': login_forms
+        }
+        return render(request, 'accounts/login.html',context)
 
 
 @login_required(login_url = 'login')
@@ -143,9 +113,15 @@ def activate(request, uidb64, token):
         return redirect('register')
 
 
-@login_required(login_url = 'login')
 def dashboard(request):
-    return render(request, 'accounts/dashboard.html')
+    # ดึงข้อมูลการสั่งซื้อทั้งหมดของผู้ใช้
+    orders = Order.objects.filter(user=request.user).order_by('-created_at')
+
+    context = {
+        'orders': orders,
+    }
+
+    return render(request, 'accounts/dashboard.html', context)
 
 
 def forgotPassword(request):

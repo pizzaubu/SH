@@ -14,6 +14,7 @@ from django.http import JsonResponse
 
 
 
+
 def store(request, category_slug=None):
     categories = None
     products = None
@@ -55,15 +56,64 @@ def product_detail(request, category_slug, product_slug):
         orderproduct = None
 
     # Get the reviews
-    reviews = ReviewRating.objects.filter(product_id=single_product.id, status=True)
+    reviews = ReviewRating.objects.filter(product_id=single_product.id, status=True) # list
+
+    sum_rating = 0
+    rating_avg = 0
+    yellow_star_avg = range(0)
+    grey_star_avg = range(0)
+    yellow_half_avg = False
+    """
+    reviews = [
+        {},
+        {},
+        {},
+        {
+            rating: 1.0
+        }
+    ]
+
+
+    reviews[i]
+    {
+        "rating": 5.0,
+        "user": "Aungkoon",
+        "subject": "Test"
+    }
+    """
+    if len(reviews) >= 1 :
+        for i in range(len(reviews)):
+            reviews[i].yellow_star = range(int(reviews[i].rating))
+            reviews[i].grey_star = range(5-int(reviews[i].rating))
+            reviews[i].format_created_at = reviews[0].created_at.strftime("%d/%m/%Y %H:%M")
+            sum_rating  += reviews[i].rating
+     
+    
+        rating_avg = sum_rating/len(reviews)# type float # 3.3333333
+        yellow_star_avg = range(int(rating_avg)) # range(0,3)
+        grey_star_avg = range(5-int(rating_avg)) # range(0,2)
+
+        if(rating_avg-int(rating_avg) >= 0.5): # 3.3333333 - 3 = 0.33333
+            yellow_half_avg = True
+            grey_star_avg = range(5-1-int(rating_avg)) # range(0,1)
+        
+    review_form = ReviewForm()
 
     context = {
         'single_product': single_product,
         'in_cart'       : in_cart,
-        'orderproduct': orderproduct,
-        'reviews': reviews,
+        'orderproduct'  : orderproduct,
+        'reviews'       : reviews,
+        'products_by_category' : single_product.category.category_name, # Add this line to include the category name
+        'stock_range'   : range(1, single_product.stock + 1),
+        'rating_avg' : f"{rating_avg:.2f}", # 3.333333
+        'yellow_half_avg' : yellow_half_avg,
+        'yellow_star_avg' : yellow_star_avg,
+        'grey_star_avg' : grey_star_avg,
+        'review_form': review_form
     }
     return render(request, 'store/product_detail.html', context)
+
 
 
 def search(request):
@@ -80,27 +130,18 @@ def search(request):
 
 
 def submit_review(request, product_id):
-    url = request.META.get('HTTP_REFERER')
     if request.method == 'POST':
-        try:
-            reviews = ReviewRating.objects.get(user__id=request.user.id, product__id=product_id)
-            form = ReviewForm(request.POST, instance=reviews)
-            form.save()
-            messages.success(request, 'Thank you! Your review has been updated.')
-            return redirect(url)
-        except ReviewRating.DoesNotExist:
-            form = ReviewForm(request.POST)
-            if form.is_valid():
-                data = ReviewRating()
-                data.subject = form.cleaned_data['subject']
-                data.rating = form.cleaned_data['rating']
-                data.review = form.cleaned_data['review']
-                data.ip = request.META.get('REMOTE_ADDR')
-                data.product_id = product_id
-                data.user_id = request.user.id
-                data.save()
-                messages.success(request, 'Thank you! Your review has been submitted.')
-                return redirect(url)
+        form = ReviewForm(request.POST)
+        print("user =>",request.user)
+        if form.is_valid():
+            review = form.save(commit=False)
+            review.user = request.user
+            review.product_id = request.POST['product_id']
+            review.ip = request.META.get('REMOTE_ADDR')
+            review.save()
+            return redirect('product_detail', category_slug=review.product.category.slug, product_slug=review.product.slug)
+    return redirect('store')
+
 
 def get_coupon(code):
     try:
@@ -131,3 +172,49 @@ def apply_coupon(request):
         }
 
     return JsonResponse(data)
+
+def coupon_detail(request, code):
+    coupon = get_coupon(code)
+    if coupon:
+        context = {'coupon': coupon}
+        return render(request, 'coupon_detail.html', context)
+    else:
+        return render(request, 'error.html')
+    
+def product_filter(request):
+    # ตัวอย่างของการสร้างลิสต์หมวดหมู่
+    categories = Category.objects.all()
+    
+    # รับค่าหมวดหมู่ที่เลือก
+    selected_category = request.GET.get('category', None)
+
+        # รับค่าตัวกรองราคาจากคำขอ
+    min_price = request.GET.get('min_price', None)
+    max_price = request.GET.get('max_price', None)
+    selected_category = request.GET.get('category', None)
+
+    # กรองสินค้าตามหมวดหมู่ที่เลือก (ถ้ามีการระบุ)
+    products = Product.objects.all()
+    if selected_category is not None and selected_category != '':
+        try:
+            selected_category = int(selected_category)
+            products = products.filter(category__id=selected_category)
+        except ValueError:
+            pass  # ใช้ค่าเริ่มต้นที่คือสินค้าทั้งหมด
+
+    # กรองรายการสินค้าตามช่วงราคาที่ระบุ
+    if min_price is not None and max_price is not None and min_price != '' and max_price != '':
+        try:
+            min_price = int(min_price)
+            max_price = int(max_price)
+            products = products.filter(price__gte=min_price, price__lte=max_price)
+        except ValueError:
+            pass  # ใช้ค่าเริ่มต้นที่คือสินค้าทั้งหมด
+
+    context = {
+        'categories': categories,
+        'products': products,
+        'selected_category': selected_category,
+    }
+    return render(request, 'store/store.html', context)
+

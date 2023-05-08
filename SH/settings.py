@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,7 +26,7 @@ SECRET_KEY = 'django-insecure-#35s8i^cnyy2isy8s9du5*x2*e&_8id%belu-dr!1&__jjl88)
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1']
 
 
 # Application definition
@@ -37,12 +38,16 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.humanize',
     'store',
     'category',
     'carts',
     'orders',
-    'accounts'
+    'accounts',
+    
+
 ]
+INSTALLED_APPS+=['widget_tweaks']
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -83,17 +88,24 @@ WSGI_APPLICATION = 'SH.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME':'shdb',
-        'USER':'root',
-        'PASSWORD':'',
-        'HOST':'localhost',
-        'PORT':''
+        'NAME': 'shdb',
+        'USER': 'root',
+        'PASSWORD': '',
+        'HOST': 'localhost',
+        'PORT': '',
+        'OPTIONS': {
+            'charset': 'utf8mb4',
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+        },
     }
 }
 
 
+
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
+
+AUTH_USER_MODEL="accounts.Account"
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -127,9 +139,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR /'static'
+STATIC_ROOT = os.path.join(BASE_DIR, 'SH/static')
 STATICFILES_DIRS = [
-    'SH/static',
+    os.path.join(BASE_DIR, 'static')
 ]
 
 # media files configuration
@@ -144,12 +156,13 @@ MESSAGE_TAGS = {
 
 
 # SMTP configuration
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'pongpanot134@gmail.com'
 EMAIL_PORT = 587
 EMAIL_HOST_USER = 'pongpanot.wa.63@ubu.ac.th'
 EMAIL_HOST_PASSWORD = 'MRPZ'
 EMAIL_USE_TLS = True
-ALLOWED_HOSTS = ['127.0.0.1']
+#ALLOWED_HOSTS = ['127.0.0.1']
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field

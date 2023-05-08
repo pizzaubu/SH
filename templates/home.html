@@ -1,13 +1,39 @@
-{% extends 'base.html' %} {% load static %} {% block content %}
+{% extends 'base.html' %} {% load static %} {% load humanize %} {% block content %}
 
 <!-- ========================= SECTION MAIN ========================= -->
-<section class="section-intro padding-y-sm">
-    <div class="container">
-
-        <div class="intro-banner-wrap">
-            <img src="{% static 'images/banners/cover.jpg' %}" class="img-fluid rounded">
+<section class="section-intro mb-4">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12 p-0">
+                <div id="carouselExample" class="carousel slide" data-bs-ride="carousel">
+                    <div class="carousel-inner" style="height: 50vh;">
+                        <div class="carousel-item active" data-bs-interval="5000">
+                            <img src="{% static 'image/banners/categories-1.jpg' %}" class="d-block w-100 img-custom" alt="...">
+                        </div>
+                        <div class="carousel-item" data-bs-interval="5000">
+                            <img src="{% static 'image/banners/categories-2.jpg' %}" class="d-block w-100 img-custom" alt="...">
+                        </div>
+                        <div class="carousel-item" data-bs-interval="5000">
+                            <img src="{% static 'image/banners/categories-3.jpg' %}" class="d-block w-100 img-custom" alt="...">
+                        </div>
+                        <div class="carousel-item" data-bs-interval="5000">
+                            <img src="{% static 'image/banners/categories-4.jpg' %}" class="d-block w-100 img-custom" alt="...">
+                        </div>
+                        <div class="carousel-item" data-bs-interval="5000">
+                            <img src="{% static 'image/banners/categories-5.jpg' %}" class="d-block w-100 img-custom" alt="...">
+                        </div>
+                    </div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#carouselExample" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#carouselExample" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                </div>
+            </div>
         </div>
-
     </div>
     <!-- container //  -->
 </section>
@@ -18,8 +44,8 @@
     <div class="container">
 
         <header class="section-heading">
-            <a href="{% url 'store' %}" class="btn btn-outline-primary float-right">ดูทั้งหมด</a>
-            <h3 class="section-title">สินค้ายอดนิยม</h3>
+            <a href="{% url 'store' %}" class="btn btn-outline-primary float-right mb-4">ดูทั้งหมด</a>
+            <h3 class="section-title">สินค้ามาใหม่</h3>
         </header>
         <!-- sect-heading -->
 
@@ -30,12 +56,12 @@
                     <a href="{{ product.get_url }}" class="img-wrap"> <img src="{{ product.images.url }}"> </a>
                     <figcaption class="info-wrap">
                         <a href="{{ product.get_url }}" class="title">{{ product.product_name }}</a>
-                        <div class="price mt-1">฿ {{ product.price }}</div>
+                        <div class="price mt-1">฿ {{ product.price | floatformat:2 | intcomma }}</div>
                         <!-- price-wrap.// -->
                         {% if product.stock > 0 %}
-                            <div class="badge badge-success">มีสินค้า</div>
+                        <div class="badge badge-success">มีสินค้า</div>
                         {% else %}
-                            <div class="badge badge-danger">สินค้าหมด</div>
+                        <div class="badge badge-danger">สินค้าหมด</div>
                         {% endif %}
                     </figcaption>
                 </div>

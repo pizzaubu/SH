@@ -1,51 +1,118 @@
-{% extends 'base.html' %}
+{% extends 'base.html' %} {% load static %} {% load humanize %}
 
 {% block content %}
-    <h1>ชำระเงิน</h1>
-    <form method="post" action="{% url 'checkout' %}">
-        {% csrf_token %}
-        <div class="form-group">
-            <label>ชื่อ</label>
-            <input type="text" name="first_name" required />
-        </div>
-        <div class="form-group">
-            <label>นามสกุล</label>
-            <input type="text" name="last_name" required />
-        </div>
-        <div class="form-group">
-            <label>เบอร์โทร</label>
-            <input type="text" name="phone" required />
-        </div>
-        <div class="form-group">
-            <label>อีเมล</label>
-            <input type="email" name="email" required />
-        </div>
-        <div class="form-group">
-            <label>ที่อยู่ 1</label>
-            <input type="text" name="address_line_1" required />
-        </div>
-        <div class="form-group">
-            <label>ที่อยู่ 2 (ไม่จำเป็น)</label>
-            <input type="text" name="address_line_2" />
-        </div>
-        <div class="form-group">
-            <label>ประเทศ</label>
-            <input type="text" name="country" required />
-        </div>
-        <div class="form-group">
-            <label>รัฐ / จังหวัด</label>
-            <input type="text" name="state" required />
-        </div>
-        <div class="form-group">
-            <label>เมือง</label>
-            <input type="text" name="city" required />
-        </div>
-        <div class="form-group">
-            <label>บันทึกสำหรับคำสั่งซื้อ (ไม่จำเป็น)</label>
-            <textarea name="order_note" rows="3"></textarea>
-        </div>
-        <div class="form-group">
-            <input type="submit" value="สั่งซื้อ" />
-        </div>
-    </form>
+<section>
+	<div class="container mt-5 mb-5">
+		<div class="row">
+			<aside class="offset-1 col-6">
+				<div class="card">
+					<div class="card-body">
+						<h1>ยืนยันออร์เดอร์</h1>
+						<form method="post" action="{% url 'place_order' %}">
+							{% csrf_token %}
+                            <input type='hidden' name="total" value="{{total}}" >
+							<input type='hidden' name="tax" value="{{tax}}">
+							<input type='hidden' name="coupon" value="{{coupon}}">
+							
+							<div class="row">
+								{% for field in order_form.visible_fields %}
+									<div class="{% if field.name == 'order_note' %} col-12 {% else %} col-6 {% endif %} mb-3">
+										<label class="form-label" for="">{{field.label}}</label>											
+										{{field}}
+										{% for error in field.errors %}
+											<span>{{error}}</span>
+										{% endfor %}
+									</div>
+								{% endfor %}
+							</div>
+                            
+							<div class="form-group">
+								<button class="btn btn-primary btn-block"> ยืนยันออร์เดอร์ </button>
+							</div>
+						</form>
+					</div>
+				</div>
+			</aside>
+			<aside class="col-3">
+				<h4 class="d-flex justify-content-between align-items-center mb-3">
+					<span class="text-primary">สินค้าในตะกร้า</span>
+				</h4>
+				<div class="card mb-3">
+					<div class="card-body">
+						<h6>รายการสินค้า</h6>
+						{% for cart_item in cart_items %}
+						<div class="row">
+							<div class="col-4 mb-2">
+								<img src="{{ cart_item.product.images.url }}" class="img-sm">
+							</div>
+							<div class="col-8 mb-2">
+								<a href="{{ cart_item.product.get_url }}" class="title text-dark">{{ cart_item.product.product_name }}</a>
+								<p type="text-muted small">จำนวน:{{ cart_item.quantity }}</p>
+								<small class="text-muted"> ฿ {{ cart_item.product.price | floatformat:2 | intcomma }} ต่อชิ้น </small>
+							</div>
+						</div>
+						{% endfor %}
+						<p class="text-body-secondary mt-3 fw-bold">ยอดรวมสุทธิ: ฿ {{grand_total | floatformat:2 | intcomma}}</p>
+
+
+					</div>
+				</div>
+				<form class="card p-2 mb-3" action="{% url 'checkout' %}">
+					<div class="input-group">
+						<input name="coupon" type="text" class="form-control" placeholder="Promo code">
+						<button type="submit" class="btn btn-secondary">Redeem</button>
+					</div>
+				</form>
+				<div class="card mb-2">
+					<div class="card-body">
+						<div class="row mb-1">
+							<div class="col-6">
+								<p>ราคารวม:</p>
+							</div>
+							<div class="col-6">
+								<p class="text-right">฿ {{total | floatformat:2 | intcomma }}</p>
+							</div>
+						</div>
+						<div class="row mb-1">
+							<div class="col-6">
+								<p>ค่าส่ง:</p>
+							</div>
+							<div class="col-6">
+								<p class="text-right"> ฿ {{tax | floatformat:2 | intcomma}}</p>
+							</div>
+						</div>
+						<div class="row mb-1">
+							<div class="col-6">
+								<p>ยอดรวม:</p>
+							</div>
+							<div class="col-6">
+								<p class="text-right text-dark b fw-bolder"> ฿ {{grand_total | floatformat:2 | intcomma}}</p>
+							</div>
+						</div>
+						{% if coupon is not None %}
+							<div class="row mb-1">
+								<div class="col-6">
+									<p class="text-right text-success">คูปอง :</p>
+								</div>
+								<div class="col-6">
+									<p class="text-right text-success mb-0">{{coupon.code}}</p>
+									<p class="text-right text-success">- ฿{{discount | floatformat:2 | intcomma}} ({{coupon.discount}}%)</p>
+								</div>
+							</div>
+						{% endif %}
+						<div class="row mb-1">
+							<div class="col-6">
+								<p>ยอดรวมสุทธิ:</p>
+							</div>
+							<div class="col-6">
+								<p class="text-right text-dark b fw-bolder"> ฿ {{final_prize | floatformat:2 | intcomma}}</p>
+							</div>
+						</div>
+					</div>
+				</div>
+			</aside>
+		</div>
+	</div>
+</section>
+
 {% endblock %}

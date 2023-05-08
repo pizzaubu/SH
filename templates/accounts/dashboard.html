@@ -1,4 +1,4 @@
-{% extends 'base.html' %} {% block content %}
+{% extends 'base.html' %} {% load static %} {% block content %}
 
 <section class="section-content padding-y bg">
     {% include 'includes/alerts.html' %}
@@ -7,12 +7,11 @@
             <aside class="col-md-3">
                 <!--   SIDEBAR   -->
                 <ul class="list-group">
-                    <a class="list-group-item active" href="#"> ประวัติการสั่งซื้อของฉัน </a>
-                    <a class="list-group-item" href="#"> ธุรกรรม </a>
-                    <a class="list-group-item" href="#"> การคืนและการคืนเงิน </a>
-                    <a class="list-group-item" href="#"> การตั้งค่า </a>
+                    <a class="list-group-item active" href="{% url 'dashboard' %}"> Dashboard </a>
                     <a class="list-group-item" href="#"> รายการขายของฉัน </a>
-                    <a class="list-group-item" href="#"> รับคำสั่งซื้อ </a>
+                    <a class="list-group-item" href="{% url 'refund' %}"> การคืนเงิน </a>
+                    <a class="list-group-item" href="#"> การตั้งค่า </a>
+                    <a class="list-group-item" href="{% url 'reset_password' %}"> เปลี่ยนรหัสผ่าน </a>
                 </ul>
                 <br>
                 <a class="btn btn-light btn-block" href="{% url 'logout' %}"> <i class="fa fa-power-off"></i> <span class="text">ออกจากระบบ</span> </a>
@@ -21,29 +20,44 @@
             <main class="col-md-9">
                 <article class="card">
                     <header class="card-header">
-                        <strong class="d-inline-block mr-3">รหัสคำสั่งซื้อ: 6123456789</strong>
+                        <strong class="d-inline-block mr-3"></strong>
                         <span>วันที่สั่งซื้อ: 16 ธันวาคม 2018</span>
                     </header>
                     <div class="card-body">
                         <div class="row">
-                            <div class="col-md-8">
-                                <h6 class="text-muted">จัดส่งถึง</h6>
-                                <p>Michael Jackson <br> โทร +1234567890 อีเมล: myname@pixsellz.com <br> ที่อยู่: เลขที่บ้าน, ชื่ออาคาร, ถนน 123, ทาชเคนต์, UZB <br> รหัสไปรษณีย์: 100123
-                                </p>
+                            <div class="col-6">
+                                <ul class="list-group">
+                                    <li class="list-group-item">
+                                      <strong>ชื่อ:</strong> {{ request.user.first_name }} {{ request.user.last_name }}
+                                    </li>
+                                    <li class="list-group-item">
+                                      <strong>ที่อยู่:</strong> {{ request.user.address_line_1 }} {{ request.user.address_line_2 }}
+                                    </li>
+                                    <li class="list-group-item">
+                                      <strong>จังหวัด:</strong> {{ request.user.state }}
+                                    </li>
+                                    <li class="list-group-item">
+                                      <strong>เบอร์โทร:</strong> {{ request.user.phone_number }}
+                                    </li>
+                                    <li class="list-group-item">
+                                      <strong>อีเมลล์:</strong> {{ request.user.email }}
+                                    </li>
+                                  </ul>
                             </div>
-                            <div class="col-md-4">
-                                <h6 class="text-muted">การชำระเงิน</h6>
-                                <span class="text-success">
-								<i class="fab fa-lg fa-cc-scb"></i>
-								SCB **** 7397
-								</span>
-                                <p>Subtotal: $356 <br> ค่าจัดส่ง: $56 <br>
-                                    <span class="b">รวม: $456 </span>
-                                </p>
+                            <div class="offset-2 col-4">
+                                <form id="profile-form" method="POST" enctype="multipart/form-data">
+                                    <div class="mt-3">
+                                        <img src="{{ request.user.profile_picture.url }}" alt="Profile Picture" id="profile-preview" class="img-fluid rounded-circle" style="max-width: 200px; max-height: 200px;">
+                                      </div>
+                                    {% csrf_token %}
+                                    <div class="form-group">
+                                      <label for="profile-picture">รูปโปรไฟล์</label>
+                                      <input type="file" name="profile-picture" class="form-control-file" id="profile-picture">
+                                    </div>
+                                  </form>
                             </div>
                         </div>
-                        <!-- row.// -->
-                    </div>
+                      </div>
                     <!-- card-body .// -->
                     <div class="table-responsive">
                         <table class="table table-hover">
@@ -53,7 +67,7 @@
                                 </td>
                                 <td>
                                     <p class="title mb-0">ชื่อสินค้าตรงนี้ </p>
-                                    <var class="price text-muted">USD 145</var>
+                                    <var class="price text-muted">145 ฿</var>
                                 </td>
                                 <td> ผู้ขาย <br> Nike clothing </td>
                                 <td width="250"> <a href="#" class="btn btn-outline-primary">ติดตามคำสั่งซื้อ</a> <a href="#" class="btn btn-light"> รายละเอียด </a> </td>
@@ -64,7 +78,7 @@
                                 </td>
                                 <td>
                                     <p class="title mb-0">ชื่ออื่น ๆ ตรงนี้ </p>
-                                    <var class="price text-muted">USD 15</var>
+                                    <var class="price text-muted">U15 ฿</var>
                                 </td>
                                 <td> ผู้ขาย <br> ABC shop </td>
                                 <td> <a href="#" class="btn btn-outline-primary">ติดตามคำสั่งซื้อ</a> <a href="#" class="btn btn-light"> รายละเอียด </a> </td>
@@ -75,7 +89,7 @@
                                 </td>
                                 <td>
                                     <p class="title mb-0">ชื่อของสินค้าตรงนี้ </p>
-                                    <var class="price text-muted">USD 145</var>
+                                    <var class="price text-muted">145 ฿</var>
                                 </td>
                                 <td> ผู้ขาย <br> Wallmart </td>
                                 <td> <a href="#" class="btn btn-outline-primary">ติดตามคำสั่งซื้อ</a> <a href="#" class="btn btn-light"> รายละเอียด </a> </td>
@@ -91,4 +105,23 @@
     </div>
 
 </section>
+<script>
+    function readURL(input) {
+      if (input.files && input.files[0]) {
+        var reader = new FileReader();
+  
+        reader.onload = function (e) {
+          $('#profile-preview')
+            .attr('src', e.target.result);
+        };
+  
+        reader.readAsDataURL(input.files[0]);
+      }
+    }
+  
+    $("#profile-picture").change(function(){
+      readURL(this);
+    });
+  </script>
+  
 {% endblock %}

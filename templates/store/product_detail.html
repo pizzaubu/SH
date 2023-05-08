@@ -1,62 +1,192 @@
 {% extends "base.html" %} 
+{% load static %} 
+{% load widget_tweaks %}
+{% load humanize %}
 {% block content %}
-<h1>{{ single_product.product_name }}</h1>
 
-<div class="product-detail">
-    <img src="{{ single_product.images.url }}" alt="{{ single_product.product_name }}" />
-    <p>Price: {{ single_product.price }}</p>
-    <p>{{ single_product.description }}</p>
-    <p>Category: {{ single_product.category.name }}</p>
-    <p>Reviews: {{ single_product.countReview }} | Average Rating: {{ single_product.averageReview }}</p>
-    {% if in_cart %}
-    <p>Already in cart</p>
-    {% else %}
-    <form method="post" action="{% url 'add_cart' single_product.id %}">
-        {% csrf_token %}
-        <input type="number" name="quantity" value="1" min="1" max="{{ single_product.stock }}" />
-        <input type="submit" value="Add to Cart" />
-    </form>
-    {% endif %}
-</div>
-
-<div class="product-reviews">
-    <h2>Reviews</h2>
-    {% for review in reviews %}
-    <div class="review">
-        <h3>{{ review.subject }}</h3>
-        <p>By: {{ review.user }}</p>
-        <p>Rating: {{ review.rating }}</p>
-        <p>{{ review.review }}</p>
+<!--<section>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-4 bg-blue">a</div>
+            <div class="col-4 bg-danger">b</div>
+            <div class="col-4 bg-primary">c</div>
+        </div>
     </div>
-    {% empty %}
-    <p>No reviews yet.</p>
-    {% endfor %}
+</section>-->
+<link rel="stylesheet" href="/static/CSS/product_detail.css">
+
+<div class="container mt-3 mb-2">
+    <div class="row">
+        <div class="col-12">
+            <a href="{% url 'home'%}" class="text-danger text-decoration-none">หน้าแรก</a>
+            <i class="fa fa-angle-right ms-2 me-2" aria-hidden="true"></i>
+            <a href="{% url 'store'%}" class="text-danger text-decoration-none">{{ products_by_category }}</a>
+            <i class="fa fa-angle-right ms-2 me-2" aria-hidden="true"></i>
+            <span class="text-danger text-decoration-none">{{ single_product.product_name }}</span>
+        </div>
+    </div>
 </div>
 
-{% if request.user.is_authenticated %}
-<div class="add-review">
-    <h2>Add a Review</h2>
-    <form method="post" action="{% url 'submit_review' single_product.id %}">
-        {% csrf_token %}
-        <label for="subject">Subject:</label>
-        <input type="text" name="subject" required />
 
-        <label for="rating">Rating:</label>
-        <select name="rating" required>
-                <option value="1">1 - Poor</option>
-                <option value="2">2 - Fair</option>
-                <option value="3">3 - Good</option>
-                <option value="4">4 - Very Good</option>
-                <option value="5">5 - Excellent</option>
-            </select>
+<section>
+    <div class="container">
+        <div class="row">
+            <div class="col-6">
+                <img class="object-fit-cover shadow rounded-2" src="{{ single_product.images.url }}" alt="{{ single_product.product_name }}" style="width: 100%; height: 500px;" />
+            </div>
+            <div class="col-6 product-desc">
+                <h1 class="fs-1 fw-bolder">{{ single_product.product_name }}</h1>
+                <p class="fs-2 text-eng">Price: <span class="fw-bold">{{ single_product.price | floatformat:2 | intcomma }}</span></p>
+                <p class="fs-5">{{ single_product.description }}</p>
+                <p class="fs-5 text-eng">Category: {{ products_by_category }}</p>
+                <p class="text-eng">Reviews: {{ single_product.countReview }} | Average Rating: {{ rating_avg }}</p>
+                {% if in_cart %}
+                <p>Already in cart</p>
+                {% else %}
+                <form method="post" action="{% url 'add_cart' single_product.id %}">
+                    {% csrf_token %}
+                    <!--<input type="number" name="quantity" value="1" min="1" max="{{ single_product.stock }}" />-->
+                    <div class="row">
+                        <div class="col-4">
+                            <select class="form-select" name="quantity" id="quantity">
+                                {% for i in stock_range %}
+                                    <option value="{{ i }}">{{ i }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-8">
+                            <button type="submit" class="btn btn-success text-eng">Add to cart</button>
+                        </div>
+                    </div>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
 
-        <label for="review">Review:</label>
-        <textarea name="review" rows="5" required></textarea>
+<!-- Review -->
+<section class="mt-5 mb-2">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center">
+                <h2>ความคิดเห็นลูกค้า</h2>
+            </div>
+        </div>
+        
+        {% if reviews|length >= 1 %}
+        <div class="row mt-2">
+            <div class="col-12 text-center">
+                <div id="overall-rating">
+                    {% for i in yellow_star_avg %}
+                    <span class="fas fa-star"></span>
+                    {% endfor %}
+                    
+                    
+                    {% if yellow_half_avg %}                    
+                    <span class="fas fa-star-half-alt"></span>
+                    {% endif %}
+                    
+                    
+                    {% for i in grey_star_avg %}
+                    <span class="fas fa-star fa-star-grey"></span>
+                    {% endfor %}
+                    <p>คะแนนเฉลี่ย: {{rating_avg}} ดาว</p>
 
-        <input type="submit" value="Submit Review" />
-    </form>
-</div>
-{% else %}
-<p>You must <a href="{% url 'login' %}">log in</a> to submit a review.</p>
-{% endif %} 
+                </div>
+            </div>
+        </div>
+        {% else %}
+            <div class="row mt-2">
+                <div class="col-12 text-center">
+                    <p>ยังไม่มีรีวิว</p>
+                </div>
+            </div>
+        {% endif %}
+        <!-- Customer feedback form -->
+        {% if user.id is not None %}
+        <div class="row mt-3">
+            <div class="col-12 text-center">
+                <button type="submit" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#reviewModal">แสดงความคิดเห็น</button>
+            </div>
+        </div>
+        {% endif %}
+        <!-- Overall product rating -->
+        
+        <!-- Other customer reviews -->
+        <div class="row mt-4">
+            {% for review in reviews %}
+            <div class="offset-3 col-md-3 mt-4">
+                <div class="customer-review">
+                    <div class="col-12">
+                        <div>
+                            {% for i in review.yellow_star %} 
+                                <span class="fas fa-star fa-star-xs"></span>
+                            {% endfor %}
+                            
+                            {% for i in review.grey_star %} 
+                                <span class="fas fa-star fa-star-xs fa-star-grey"></span>
+                            {% endfor %}
+                           
+                            
+                            
+                            <span>Rating: {{ review.rating }}</span>
+                        </div>
+                    </div>
+                    <p class="fw-medium">By: {{ review.user }}</p>
+                    <p class="fw-lighter text-secondary">{{ review.format_created_at }}</p>
+                </div>
+            </div>
+            <div class="col-md-3 mt-4">
+                <div class="customer-review">
+                    <h5>{{ review.subject }}</h5>
+                    <p class="fw-lighter text-secondary">{{ review.review }}</p>
+                </div>
+            </div>
+            <div class="offset-3 col-6">
+                <hr>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Review Modal -->
+<div class="modal fade" id="reviewModal" tabindex="-1" aria-labelledby="reviewModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form method="POST" action="{% url 'submit_review' single_product.id %}">
+            {% csrf_token %}
+            <div class="modal-header">
+                <h5 class="modal-title" id="reviewModalLabel">แสดงความคิดเห็น</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" name="product_id" value="{{ single_product.id }}">
+                {% for field in review_form.visible_fields %}
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <label class="form-label" for="">{{field.label}}</label>
+                            {{field}}
+                            {% for error in field.errors %}
+                                <span>{{error}}</span>
+                            {% endfor %}
+                        </div>  
+                    </div>
+                {% endfor %}
+            
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button>
+                <button type="submit" class="btn btn-primary">ส่งความคิดเห็น</button>
+            </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  
+</section>
+
+
+
+
 {% endblock %}

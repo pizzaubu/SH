@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="container mb-5 mt-5">
+        <div class="row">
+            <div class="offset-3 col-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Coupon Code: {{ coupon.code }}</h5>
+                        <p class="card-text">Valid from: {{ coupon.valid_from|date:"F j, Y, P" }}</p>
+                        <p class="card-text">Valid to: {{ coupon.valid_to|date:"F j, Y, P" }}</p>
+                        <p class="card-text">ลด: {{ coupon.discount }}%</p>
+                        <form method="post" action="{% url 'get_coupon' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="code" value="{{ coupon.code }}">
+                            <button type="submit" class="btn btn-primary">เก็บคูปอง</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

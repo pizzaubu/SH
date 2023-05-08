@@ -18,6 +18,7 @@ class MyAccountManager(BaseUserManager):
         )
 
         # ตั้งค่ารหัสผ่านและบันทึกผู้ใช้
+        user.is_active = True
         user.set_password(password)
         user.save(using=self._db)
         return user
@@ -33,33 +34,33 @@ class MyAccountManager(BaseUserManager):
         )
 
         # ตั้งค่าแอตทริบิวต์ของผู้ดูแลระบบและบันทึก
-        user.is_admin = True
+        user.admin = True
         user.is_active = True
-        user.is_staff = True
-        user.is_superadmin = True
+        user.staff = True
+        user.superadmin = True
         user.save(using=self._db)
         return user
-
+    
 class Account(AbstractBaseUser):
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
     username = models.CharField(max_length=50, unique=True)
     email = models.EmailField(max_length=100, unique=True)
-    phone_number = models.CharField(max_length=50)
+    phone_number = models.CharField(max_length=50, null=True, blank=True) # เพิ่มแอตทริบิวต์ phone_number ที่นี่
 
     date_joined = models.DateTimeField(auto_now_add=True)
     last_login = models.DateTimeField(auto_now_add=True)
-    is_admin = models.BooleanField(default=False)
-    is_staff = models.BooleanField(default=False)
+    admin = models.BooleanField(default=False)
+    staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=False)
-    is_superadmin = models.BooleanField(default=False)
+    superadmin = models.BooleanField(default=False)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
 
     objects = MyAccountManager()
 
-    def full_name(self):
+    def get_full_name(self):
         return f'{self.first_name} {self.last_name}'
 
     def __str__(self):
@@ -72,4 +73,19 @@ class Account(AbstractBaseUser):
     # ตรวจสอบว่าผู้ใช้มีสิทธิ์ในโมดูลหรือไม่
     def has_module_perms(self, add_label):
         return True
+    
+    @property
+    def is_staff(self):
+        "Is the user a member of staff"
+        return self.staff
+
+    @property
+    def is_admin(self):
+        "Is the user a admin member"
+        return self.admin
+    
+    @property
+    def is_superadmin(self):
+        "Is the user a super admin member"
+        return self.superadmin
 

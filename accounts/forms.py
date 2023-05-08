@@ -1,6 +1,22 @@
 from django import forms
 from .models import Account
 
+class LoginForm(forms.ModelForm):
+    username = forms.CharField(
+        required=True,
+        widget=forms.widgets.Input(attrs={"class": "form-control", "placeholder": "ชื่อผู้ใช้"}),
+        label="ชื่อผู้ใช้"
+        
+    )
+    password = forms.CharField(
+        required=True,
+        widget=forms.widgets.PasswordInput(attrs={"class": "form-control","placeholder":"รหัสผ่าน"}),
+        label="รหัสผ่าน" 
+    )
+    
+    class Meta:
+        model = Account
+        fields = ['username', 'password']
 
 class RegistrationForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput(attrs={

@@ -4,46 +4,59 @@
 
 <section class="section-conten padding-y" style="min-height:84vh">
 
+    <div class="container">
 <!-- ============================ COMPONENT LOGIN   ================================= -->
 
-{% if request.GET.command == 'verification' %}
+    {% if request.GET.command == 'verification' %}
 
-<div class="container mx-auto alert alert-info text-center" role="alert" style="max-width: 1024px; margin-top:100px;">
-ขอบคุณที่ลงทะเบียนกับเรา พวกเราได้ส่งอีเมลยืนยันไปยังที่อยู่อีเมลของคุณ [{{ request.GET.email }}]
-<br><br>
-ยืนยันแล้ว? <a href="{% url 'login' %}">เข้าสู่ระบบ</a>
-</div>
+        <div class="row" role="alert" >
+            <div class="col-12">
+                <p>ขอบคุณที่ลงทะเบียนกับเรา พวกเราได้ส่งอีเมลยืนยันไปยังที่อยู่อีเมลของคุณ [{{ request.GET.email }}]</p>
+                <p>ยืนยันแล้ว? <a href="{% url 'login' %}">เข้าสู่ระบบ</a></p>
+            </div>
+        </div>
 
-{% else %}
+    {% else %}
 
-    <div class="card mx-auto" style="max-width: 380px; margin-top:100px;">
+        <div class="row" >
+            <div class="offset-4 col-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title mb-4">เข้าสู่ระบบ</h4>
+                        {% include 'includes/alerts.html' %}
+                        <form action="{% url 'login' %}" method="POST">
+                            {% csrf_token %}
+                            {% for field in login_forms.visible_fields %}
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <label class="form-label" for="">{{field.label}}</label>
+                                            {{field}}
+                                            {% for error in field.errors %}
+                                                <span>{{error}}</span>
+                                            {% endfor %}
+                                    </div>  
+                                </div>
+                            {% endfor %}
+                            <div class="row mb-2">
+                                <div class="col-12">
+                                    <a href="{% url 'forgot_password' %}" class="float-right">ลืมรหัสผ่าน?</a>
+                                </div>
+                            </div> <!-- form-group form-check .// -->
+                            <div class="row">
+                                <div class="col-12">
+                                    <button type="submit" class="btn btn-primary btn-block"> เข้าสู่ระบบ </button>
+                                </div>
+                            </div> <!-- form-group// -->
+                        </form>
+                    </div> <!-- card-body.// -->
+                </div>
+                <p class="text-center mt-4">ยังไม่มีบัญชี? <a href="{% url 'register' %}">สมัครสมาชิก</a></p>
+            </div> <!-- card .// -->
+        </div>
 
-        <div class="card-body">
-            <h4 class="card-title mb-4">เข้าสู่ระบบ</h4>
-            {% include 'includes/alerts.html' %}
-            <form action="{% url 'login' %}" method="POST">
-                {% csrf_token %}
-                <div class="form-group">
-                    <input type="email" class="form-control" placeholder="ที่อยู่อีเมล" name="email">
-                </div> <!-- form-group// -->
-                <div class="form-group">
-                    <input type="password" class="form-control" placeholder="รหัสผ่าน" name="password">
-                </div> <!-- form-group// -->
-
-                <div class="form-group">
-                    <a href="{% url 'forgotPassword' %}" class="float-right">ลืมรหัสผ่าน?</a>
-                </div> <!-- form-group form-check .// -->
-                <div class="form-group">
-                    <button type="submit" class="btn btn-primary btn-block"> เข้าสู่ระบบ </button>
-                </div> <!-- form-group// -->
-            </form>
-        </div> <!-- card-body.// -->
-    </div> <!-- card .// -->
-
-    <p class="text-center mt-4">ยังไม่มีบัญชี? <a href="{% url 'register' %}">สมัครสมาชิก</a></p>
-    <br><br>
+            
 <!-- ============================ COMPONENT LOGIN  END.// ================================= -->
-{% endif %}
-
+    {% endif %}
+    </div>
 </section>
 {% endblock %}

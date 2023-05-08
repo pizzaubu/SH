@@ -5,12 +5,13 @@ from django.db.models.signals import post_save
 from django.conf import settings
 
 class Payment(models.Model):
-    user = models.ForeignKey(Account, on_delete=models.CASCADE)
+    user = models.ForeignKey(Account, on_delete=models.CASCADE, to_field='email')
     payment_id = models.CharField(max_length=100)
     payment_method = models.CharField(max_length=100)
     amount_paid = models.CharField(max_length=100) # this is the total amount paid
     status = models.CharField(max_length=100)
     created_at = models.DateTimeField(auto_now_add=True)
+    images = models.ImageField(upload_to='photos/payments', default='default_payment_image.jpg')
 
     def __str__(self):
         return self.payment_id
@@ -82,9 +83,13 @@ class Refund(models.Model):
         return f"{self.pk}"
 
 
-def userprofile_receiver(sender, instance, created, *args, **kwargs):
-    if created:
-        userprofile = Account.objects.create(user=instance)
+    def userprofile_receiver(sender, instance, created, *args, **kwargs):
+        try:
+            if created:
+                print("Try instance",kwargs)
+                userprofile = Account.objects.create(user=instance)
+        except:
+            print("Error instance",kwargs)
 
 
-post_save.connect(userprofile_receiver, sender=settings.AUTH_USER_MODEL)
+#post_save.connect(userprofile_receiver, sender=settings.AUTH_USER_MODEL)

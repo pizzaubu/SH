@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, JsonResponse
 from carts.models import CartItem
-from .forms import OrderForm,ReturnForm
+from .forms import OrderForm,ReturnForm,PaymentForm
 import datetime
 from .models import Account, Order, Payment, OrderProduct
 import json
@@ -48,6 +48,7 @@ def payments(request):
         CartItem.objects.filter(user=request.user).delete()
 
         return JsonResponse(response_data)
+    
 
     return render(request, 'orders/order_complete.html')
 
@@ -64,6 +65,7 @@ def place_order(request):
         return redirect('store')
 
     order_form = OrderForm(request.POST)
+    payment_form = PaymentForm(request.POST)
     total = float(request.POST.get("total"))
     tax = float(request.POST.get("tax"))
     coupon_code = request.POST.get("coupon") # 123ABC
@@ -114,7 +116,8 @@ def place_order(request):
                 'coupon':coupon,
                 'discount':discount,
                 'final_prize': final_prize,
-                'order_form': order_form
+                'order_form': order_form,
+                'payment_form':payment_form
                 
             }
             return render(request, 'orders/payments.html', context)

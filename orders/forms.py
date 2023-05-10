@@ -1,5 +1,5 @@
 from django import forms
-from .models import Order,Refund
+from .models import Order,Refund,Payment
 
 class OrderForm(forms.ModelForm):
     first_name = forms.CharField(
@@ -71,3 +71,30 @@ class ReturnForm(forms.ModelForm):
     class Meta:
         model = Refund
         fields = ['order', 'reason']
+
+class PaymentForm(forms.ModelForm):
+
+    payment_method = forms.ChoiceField(
+        required=True,
+        widget=forms.Select(attrs={"class":"form-select","placeholder":"เลือกช่องทางการชำระเงิน"}),
+        label="ช่องทางการชำระเงิน",
+        choices=(
+            ('', 'Please select payment method'),
+            ('SCB','SCB'),
+            ('K-BANKS','K-BANKS'),
+            ('Krungsri','Krungsri')
+        )
+
+    )
+
+    images = forms.ImageField(
+        required=True,
+        widget=forms.FileInput(attrs={"class":"form-control","placeholder":"แนบใบเสร็จการชำระเงิน"}),
+        label="ใบเสร็จการชำระเงิน"
+
+    )
+
+
+    class Meta:
+        model = Payment
+        fields = ['payment_method','images']

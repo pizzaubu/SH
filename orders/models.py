@@ -5,11 +5,22 @@ from django.db.models.signals import post_save
 from django.conf import settings
 
 class Payment(models.Model):
+    STATUS_CHOICE = (
+        ('Pending', 'Pending'),
+        ('Approved', 'Approved')
+    )
+
+    METHOD = (
+        ('SCB','SCB'),
+        ('K-BANKS','K-BANKS'),
+        ('Krungsri','Krungsri')
+    )
+    
     user = models.ForeignKey(Account, on_delete=models.CASCADE, to_field='email')
     payment_id = models.CharField(max_length=100)
-    payment_method = models.CharField(max_length=100)
+    payment_method = models.CharField(max_length=100, choices=METHOD,default='SCB')
     amount_paid = models.CharField(max_length=100) # this is the total amount paid
-    status = models.CharField(max_length=100)
+    status = models.CharField(max_length=100, choices=STATUS_CHOICE, default='Pending')
     created_at = models.DateTimeField(auto_now_add=True)
     images = models.ImageField(upload_to='photos/payments', default='default_payment_image.jpg')
 

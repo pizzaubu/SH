@@ -13,7 +13,7 @@
                     {% csrf_token %}
                     <input type="hidden" name="email" value="{{order.email}}">
                     <input type="hidden" name="amount_paid" value="{{ final_prize }}">
-                    <input type="hidden" name="payment_method" value="{{ payment_method }}">
+                    <input type="hidden" name="status" value="Pending">
                     <div class="card mb-3">
                         <h3 class="card-header">ที่อยู่สำหรับจัดส่ง</h3>
                         <div class="card-body">
@@ -39,19 +39,14 @@
                             <p class="text-right text-success"><b>คูปอง:</b>฿{{discount | floatformat:2 | intcomma}} ({{coupon.discount}}%)</p>
                             {% endif %}
                             <p class="card-text"><b>ราคารวมสุทธิ:</b>฿ {{final_prize | floatformat:2 | intcomma}}</p>
-                            <div class="form-group col-3 mb-3">
-                                <label for="payment_method"><b>วิธีการชำระเงิน:</b></label>
-                                <select class="form-control" name="payment_method" id="payment_method" required>
-                                    <option value="">เลือกวิธีการชำระเงิน</option>
-                                    <option value="SCB">SCB</option>
-                                    <option value="Krungsri">Krungsri</option>
-                                    <option value="K-BANK">K-BANK</option>
-                                </select>
+                            <div class="row mb-3">
+                                {% for field in payment_form.visible_fields %}
+                                    <div class="col-6">
+                                        <label class="form-label">{{field.label}}</label>
+                                        {{field}}
+                                    </div>
+                                {% endfor %}
                             </div>
-                            <p class="file-upload">
-                                <b>สลีฟการโอนเงิน:</b>
-                                <input type="file" name="images" accept="image/*" id="id_images">
-                            </p>
                             <button class="btn btn-primary btn-block"> ยืนยันการชำระเงิน </button>
                         </div>
                     </div>

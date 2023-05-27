@@ -1,4 +1,4 @@
-{% extends 'base.html' %} {% load static %} {% block content %}
+{% extends 'base.html' %} {% load static %} {% load humanize %} {% block content %}
 
 <section class="section-content padding-y bg">
     {% include 'includes/alerts.html' %}
@@ -21,7 +21,7 @@
                 <article class="card">
                     <header class="card-header">
                         <strong class="d-inline-block mr-3"></strong>
-                        <span>วันที่สั่งซื้อ: 16 ธันวาคม 2018</span>
+                        <span>โปรไฟล์ของฉัน</span>
                     </header>
                     <div class="card-body">
                         <div class="row">
@@ -31,10 +31,11 @@
                                       <strong>ชื่อ:</strong> {{ request.user.first_name }} {{ request.user.last_name }}
                                     </li>
                                     <li class="list-group-item">
-                                      <strong>ที่อยู่:</strong> {{ request.user.address_line_1 }} {{ request.user.address_line_2 }}
+                                      <strong>ที่อยู่:</strong> {{ order.address_line_1 }} 
+                                      {% if order.address_line_2 %} {{ order.address_line_2 }} {% endif %}
                                     </li>
                                     <li class="list-group-item">
-                                      <strong>จังหวัด:</strong> {{ request.user.state }}
+                                        <strong>จังหวัด:</strong> {{ order.state }}
                                     </li>
                                     <li class="list-group-item">
                                       <strong>เบอร์โทร:</strong> {{ request.user.phone_number }}
@@ -54,46 +55,52 @@
                                       <label for="profile-picture">รูปโปรไฟล์</label>
                                       <input type="file" name="profile-picture" class="form-control-file" id="profile-picture">
                                     </div>
-                                  </form>
+                                </form>
                             </div>
                         </div>
                       </div>
                     <!-- card-body .// -->
                     <div class="table-responsive">
                         <table class="table table-hover">
-                            <tr>
-                                <td width="65">
-                                    <img src="../images/items/1.jpg" class="img-xs border">
-                                </td>
-                                <td>
-                                    <p class="title mb-0">ชื่อสินค้าตรงนี้ </p>
-                                    <var class="price text-muted">145 ฿</var>
-                                </td>
-                                <td> ผู้ขาย <br> Nike clothing </td>
-                                <td width="250"> <a href="#" class="btn btn-outline-primary">ติดตามคำสั่งซื้อ</a> <a href="#" class="btn btn-light"> รายละเอียด </a> </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <img src="../images/items/2.jpg" class="img-xs border">
-                                </td>
-                                <td>
-                                    <p class="title mb-0">ชื่ออื่น ๆ ตรงนี้ </p>
-                                    <var class="price text-muted">U15 ฿</var>
-                                </td>
-                                <td> ผู้ขาย <br> ABC shop </td>
-                                <td> <a href="#" class="btn btn-outline-primary">ติดตามคำสั่งซื้อ</a> <a href="#" class="btn btn-light"> รายละเอียด </a> </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <img src="../images/items/3.jpg" class="img-xs border">
-                                </td>
-                                <td>
-                                    <p class="title mb-0">ชื่อของสินค้าตรงนี้ </p>
-                                    <var class="price text-muted">145 ฿</var>
-                                </td>
-                                <td> ผู้ขาย <br> Wallmart </td>
-                                <td> <a href="#" class="btn btn-outline-primary">ติดตามคำสั่งซื้อ</a> <a href="#" class="btn btn-light"> รายละเอียด </a> </td>
-                            </tr>
+                          <tbody class="bg_table">
+                            {% for thing in orders %}
+                              <tr>
+                                  <td>
+                                      <p class="title mb-0 fw-semibold">หมายเลขคำสั่งซื้อ</p>
+                                      <span class="">{{ thing.order_number }}</span>
+                                  </td>
+                                  <td> 
+                                    <p class="title mb-0 fw-semibold">ยอดชำระ </p>
+                                    <span>
+                                      {% if thing.payment.amount_paid %}
+                                        {{ thing.payment.amount_paid | floatformat:2 | intcomma }}
+                                      {% else %}
+                                        ไม่มีการชำระเงิน 
+                                      {% endif %} 
+                                    </span>
+                                  </td>
+                                  <td>
+                                    <p class="title mb-0 fw-semibold">สถานะคำสั่งซื้อ</p>
+                                    <span>
+                                      {% if thing.order_status == 'Completed' %}
+                                        <span class="badge bg-success">ส่งพัสดุแล้ว</span>
+                                      {% elif thing.order_status == 'Accepted' %}
+                                        <span class="badge bg-info">ชำระเงินแล้ว</span>
+                                      {% elif thing.order_status == 'New' %}
+                                        <span class="badge bg-success">รอชำระเงิน</span>
+                                      {% else %}
+                                        <span class="badge bg-danger">ยกเลิกคำสั่งซื้อ</span>
+                                      {% endif %}
+                                    </span>
+                                  </td>
+                                  <td>
+                                    <p class="title mb-0 fw-semibold">วันที่สั่งซื้อ</p>
+                                    <span>{{ thing.created_at }}</span>
+                                  </td>
+                                  <td width="250"> <a href="#" class="btn btn-outline-primary">รายละเอียด</a></td>
+                              </tr>
+                            {% endfor %}  
+                          </tbody>
                         </table>
                     </div>
                     <!-- table-responsive .end// -->

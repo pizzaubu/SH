@@ -113,15 +113,20 @@ def activate(request, uidb64, token):
         return redirect('register')
 
 
+@login_required
 def dashboard(request):
     # ดึงข้อมูลการสั่งซื้อทั้งหมดของผู้ใช้
-    orders = Order.objects.filter(user=request.user).order_by('-created_at')
+    orders = Order.objects.filter(user=request.user)
+    order = orders.latest('created_at') if orders.exists() else None
 
     context = {
-        'orders': orders,
+        'order': order,
+        'orders':orders
     }
 
     return render(request, 'accounts/dashboard.html', context)
+
+
 
 
 def forgotPassword(request):

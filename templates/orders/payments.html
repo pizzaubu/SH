@@ -9,11 +9,6 @@
         <h1 class="text-center mb-4">ตรวจสอบที่อยู่และทำการชำระเงิน</h1>
         <div class="row">
             <aside class="col-lg-8">
-                <form method="POST" action="{% url 'payments' %}">
-                    {% csrf_token %}
-                    <input type="hidden" name="email" value="{{order.email}}">
-                    <input type="hidden" name="amount_paid" value="{{ final_prize }}">
-                    <input type="hidden" name="status" value="Pending">
                     <div class="card mb-3">
                         <h3 class="card-header">ที่อยู่สำหรับจัดส่ง</h3>
                         <div class="card-body">
@@ -39,18 +34,23 @@
                             <p class="text-right text-success"><b>คูปอง:</b>฿{{discount | floatformat:2 | intcomma}} ({{coupon.discount}}%)</p>
                             {% endif %}
                             <p class="card-text"><b>ราคารวมสุทธิ:</b>฿ {{final_prize | floatformat:2 | intcomma}}</p>
-                            <div class="row mb-3">
-                                {% for field in payment_form.visible_fields %}
-                                    <div class="col-6">
-                                        <label class="form-label">{{field.label}}</label>
-                                        {{field}}
-                                    </div>
-                                {% endfor %}
-                            </div>
-                            <button class="btn btn-primary btn-block"> ยืนยันการชำระเงิน </button>
+                            <form method="POST" action="{% url 'payments' %}" enctype="multipart/form-data">
+                                <input type="hidden" name="email" value="{{order.email}}">
+                                <input type="hidden" name="amount_paid" value="{{ final_prize }}">
+                                <input type="hidden" name="status" value="Pending">
+                                {% csrf_token %}
+                                <div class="row mb-3">
+                                    {% for field in payment_form.visible_fields %}
+                                        <div class="col-6">
+                                            <label class="form-label">{{field.label}}</label>
+                                            {{field}}
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                                <button class="btn btn-primary btn-block"> ยืนยันการชำระเงิน </button>
+                            </form>
                         </div>
                     </div>
-                </form>
             </aside>
 
             <aside class="col-lg-4">

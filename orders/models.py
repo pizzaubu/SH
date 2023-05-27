@@ -18,7 +18,7 @@ class Payment(models.Model):
     
     user = models.ForeignKey(Account, on_delete=models.CASCADE, to_field='email')
     payment_id = models.CharField(max_length=100)
-    payment_method = models.CharField(max_length=100, choices=METHOD,default='SCB')
+    payment_method = models.CharField(max_length=100, choices=METHOD, default='SCB')
     amount_paid = models.CharField(max_length=100) # this is the total amount paid
     status = models.CharField(max_length=100, choices=STATUS_CHOICE, default='Pending')
     created_at = models.DateTimeField(auto_now_add=True)

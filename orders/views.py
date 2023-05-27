@@ -10,55 +10,92 @@ from django.core.mail import EmailMessage
 from django.contrib.auth import authenticate, login
 from django.template.loader import render_to_string
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+
 @login_required(login_url='login')
 def payments(request):
     if request.method == 'POST':
+
         email = request.POST.get('email')
-        payment_method = request.POST.get('payment_method')
-        amount_paid = request.POST.get('amount_paid')
+        amount_paid = float(request.POST.get('amount_paid'))
         status = request.POST.get('status')
-        images = request.FILES.get('images')  # Get the uploaded image file
+        form = PaymentForm(request.POST, request.FILES)
+        
 
-        try:
-            user = Account.objects.get(email=email)
-        except Account.DoesNotExist:
-            return JsonResponse({'error': 'User not found'})
+        if form.is_valid():
+            payment_method = form.cleaned_data['payment_method']
+            images = form.cleaned_data['images']
+            user = request.user
+            payment = None
+            
+            # Get the order with is_ordered=False for the current user
+            order = Order.objects.filter(user=request.user, is_ordered=False).order_by("-created_at").first()
+            if order: # if order is not None
+                payment = Payment(
+                    user=user,
+                    payment_id=f'{email}-{payment_method}-{amount_paid}',
+                    payment_method=payment_method,
+                    amount_paid=amount_paid,
+                    status=status,
+                    images=images
+                )
+                payment.save()
+                order_number = order.order_number
+                order.payment = payment
+                order.is_ordered = True
+                order.order_status = 'Accepted'
+                order.save()
 
-        payment = Payment(
-            user=user,
-            payment_id=f'{email}-{payment_method}-{amount_paid}',
-            payment_method=payment_method,
-            amount_paid=amount_paid,
-            status=status,
-            images=images
-        )
-        payment.save()
+            else:
+                return redirect('home')
 
-        response_data = {
-            'payment_id': payment.payment_id,
-            'user_id': email,
-            'payment_method': payment.payment_method,
-            'amount_paid': payment.amount_paid,
-            'status': payment.status,
-            'created_at': payment.created_at.strftime('%Y-%m-%dT%H:%M:%S.%fZ'),
-            'images': payment.images.url  # Add the image URL to the response data
-        }
+            Order.objects.filter(user=request.user, is_ordered=False).update(is_ordered=True, order_status = 'Cancelled')
 
-        # ลบสินค้าในตะกร้าหลังจากทำการชำระเงินเสร็จสิ้น
-        CartItem.objects.filter(user=request.user).delete()
+            cart_items = CartItem.objects.filter(user=request.user)
 
-        return JsonResponse(response_data)
-    
+            for item in cart_items:
+                #บันทึกประวัติการสั่งซื้อลง OrderProduct
+                order_product = OrderProduct()
+                order_product.order_id = order.id
+                order_product.payment = payment
+                order_product.user = user
+                order_product.product = item.product
+                order_product.quantity = item.quantity
+                order_product.product_price = item.product.price
+                order_product.save()
 
-    return render(request, 'orders/order_complete.html')
+                # ลดจำนวนสินค้าที่วางขาย
+                product = Product.objects.get(id=item.product_id)
+                product.stock -= item.quantity
+                product.save()
+
+            ordered_products = OrderProduct.objects.filter(order_id=order.id)
+            subtotal = 0
+            for i in ordered_products:
+                subtotal += i.product_price * i.quantity
+
+            order_discount = (subtotal + order.tax) * (order.coupon.discount/100)
 
 
+
+            # ลบสินค้าในตะกร้าหลังจากทำการชำระเงินเสร็จสิ้น
+            CartItem.objects.filter(user=request.user).delete()
+
+            context = {
+                'order':order,
+                'payment':payment,
+                'ordered_products':ordered_products,
+                'order_number':order_number,
+                'subtotal':subtotal,
+                'order_discount':order_discount
+
+            }
+
+            return render(request, 'orders/order_complete.html',context)
 
 @login_required(login_url='login')
 def place_order(request):
     current_user = request.user
-
-    # หากจำนวนสินค้าในตะกร้าน้อยกว่าหรือเท่ากับ 0 ให้กลับไปที่หน้าร้านค้า
     cart_items = CartItem.objects.filter(user=current_user)
     cart_count = cart_items.count()
     if cart_count <= 0:
@@ -68,15 +105,16 @@ def place_order(request):
     payment_form = PaymentForm(request.POST)
     total = float(request.POST.get("total"))
     tax = float(request.POST.get("tax"))
+    grand_total = total + tax
     coupon_code = request.POST.get("coupon") # 123ABC
     coupon = None
     discount = 0
     
     if coupon_code != "None":
         coupon = Coupon.objects.get(code=coupon_code) # type coupon object
-        discount = total * (coupon.discount/100)
+        discount = grand_total * (coupon.discount/100)
         
-    final_prize = total + tax - discount
+    final_prize = grand_total - discount
 
     if request.method == 'POST':
         if order_form.is_valid():
@@ -127,7 +165,8 @@ def place_order(request):
             'order_form': order_form
         }
         return redirect('checkout')
-    
+
+@login_required
 def order_complete(request):
     order_number = request.GET.get('order_number')
     transID = request.GET.get('payment_id')
@@ -152,7 +191,8 @@ def order_complete(request):
         }
         return render(request, 'orders/order_complete.html', context)
     except (Payment.DoesNotExist, Order.DoesNotExist):
-        return redirect('home')
+        return redirect('store')    
+
 
 def refund(request):
     if request.method == 'POST':

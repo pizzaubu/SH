@@ -49,3 +49,17 @@ class RegistrationForm(forms.ModelForm):
         self.fields['email'].widget.attrs['placeholder'] = 'ป้อนที่อยู่อีเมล'
         for field in self.fields:
             self.fields[field].widget.attrs['class'] = 'form-control'
+
+class ProfilePictureForm(forms.ModelForm):
+
+    images = forms.ImageField(
+        required=True,
+        widget=forms.FileInput(attrs={"class":"form-control","placeholder":"อัปโหลดรูปโปรไฟล์ของคุณ"}),
+        label="รูปโปรไฟล์"
+
+    )
+
+
+    class Meta:
+        model = Account
+        fields = ['images']

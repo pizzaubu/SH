@@ -1,6 +1,6 @@
-{% extends 'base.html' %} {% load static %} {% block content %}
+{% extends 'base.html' %} {% load static %} {% load humanize %} {% block content %}
 
-<div class="container" style="margin-top: 50px;">
+<div class="container" style="margin-top: 50px; text-align: center;">
     <i class="fas fa-check-circle" style="font-size: 72px;margin-bottom: 20px;color: #28A745;"></i>
     <h2 class="text-center">การชำระเงินสำเร็จ</h2>
     <br>
@@ -19,7 +19,7 @@
                         <!-- Start .row -->
                         <div class="col-lg-6">
                             <!-- col-lg-6 start here -->
-                            <div class="invoice-logo"><img src="{% static '/images/logo.png' %}" alt="Invoice logo" style="max-height: 40px;"></div>
+                            <div class="invoice-logo"><img src="{% static '/image/logo.png' %}" alt="Invoice logo" style="max-height: 40px;"></div>
                         </div>
                         <!-- col-lg-6 end here -->
                         <div class="col-lg-6">
@@ -65,22 +65,28 @@
                                                     </p>
                                                 </td>
                                                 <td class="text-center">{{item.quantity}}</td>
-                                                <td class="text-center">{{item.product_price}} บาท</td>
+                                                <td class="text-center">{{item.product_price| floatformat:2 | intcomma}} บาท</td>
                                             </tr>
                                             {% endfor %}
                                         </tbody>
                                         <tfoot>
                                             <tr>
                                                 <th colspan="2" class="text-right" scope="row">ยอดรวม:</th>
-                                                <th class="text-center" scope="col">{{subtotal}} บาท</th>
+                                                <th class="text-center" scope="col">{{subtotal| floatformat:2 | intcomma}} บาท</th>
                                             </tr>
                                             <tr>
-                                                <th colspan="2" class="text-right" scope="row">ภาษี:</th>
-                                                <th class="text-center" scope="col">{{order.tax}} บาท</th>
+                                                <th colspan="2" class="text-right" scope="row">ค่าจัดส่ง:</th>
+                                                <th class="text-center" scope="col">{{order.tax| floatformat:2 | intcomma}} บาท</th>
                                             </tr>
+                                            {% if order.coupon is not None %}
+                                                <tr>
+                                                    <th colspan="2" class="text-right" scope="row">ส่วนลด:</th>
+                                                    <th class="text-center" scope="col">฿{{order_discount | floatformat:2 | intcomma}} ({{order.coupon.discount}}%) บาท</th>
+                                                </tr>
+                                            {% endif %}
                                             <tr>
                                                 <th colspan="2" class="text-right" scope="row">ยอดรวมทั้งหมด:</th>
-                                                <th class="text-center" scope="col">{{order.order_total}} บาท</th>
+                                                <th class="text-center" scope="col">{{payment.amount_paid| floatformat:2 | intcomma}} บาท</th>
                                             </tr>
                                         </tfoot>
                                     </table>

@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from .forms import RegistrationForm,LoginForm
+from .forms import RegistrationForm,LoginForm,ProfilePictureForm
 from .models import Account
 from django.contrib import messages, auth
 from django.contrib.auth.decorators import login_required
@@ -119,9 +119,22 @@ def dashboard(request):
     orders = Order.objects.filter(user=request.user)
     order = orders.latest('created_at') if orders.exists() else None
 
+    # สร้าง instance ของ ProfilePictureForm
+    form = ProfilePictureForm(request.POST or None, request.FILES or None, instance=request.user)
+
+    # ตรวจสอบการส่งข้อมูล POST
+    if request.method == 'POST':
+        if form.is_valid():
+            # บันทึกข้อมูลที่ได้จากฟอร์ม
+            form.save()
+            messages.success(request, 'Profile picture updated successfully.')
+        else:
+            messages.error(request, 'There was an error updating your profile picture.')
+
     context = {
         'order': order,
-        'orders':orders
+        'orders':orders,
+        'form': form,  # ส่ง form instance ไปที่ template
     }
 
     return render(request, 'accounts/dashboard.html', context)

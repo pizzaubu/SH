@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+{% block content %}
+<section class="section-content padding-y bg">
+    {% include 'includes/alerts.html' %}
+    <div class="container">
+        <div class="row">
+            <aside class="col-md-3">
+                <ul class="list-group">
+                    <a class="list-group-item" href="{% url 'dashboard' %}"> Dashboard </a>
+                    <!--<a class="list-group-item" href="{% url 'refund' %}"> การคืนเงิน </a>-->
+                    <a class="list-group-item active" href="{% url 'setting' %}"> การตั้งค่า </a>
+                    <a class="list-group-item" href="{% url 'reset_password' %}"> เปลี่ยนรหัสผ่าน </a>
+                </ul>
+                <br>
+                    <a class="btn btn-light btn-block" href="{% url 'logout' %}"> <i class="fa fa-power-off"></i> <span class="text">ออกจากระบบ</span> </a>
+            </aside>
+            <main class="col-md-9">
+                <article class="card">
+                    <header class="card-header">
+                        <strong class="d-inline-block mr-3"></strong>
+                        <span>ตั้งค่าโปรไฟล์</span>
+                    </header>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-6">
+                                <form method="POST" action="{% url 'setting' %}">
+                                    {% csrf_token %}
+                                    {% for field in setting_form %}
+                                        <div class="col-12 mb-2">
+                                            <label class="form-label">{{field.label}}</label>
+                                            {{field}}
+                                        </div>
+                                    {% endfor %}
+                                    <button class="btn btn-primary btn-block"> บันทึกข้อมูล </button>
+                                </form>
+                            </div>
+                            <div class="col-6">
+                                <form method="POST" action="{% url 'setting' %}" enctype="multipart/form-data">
+                                    {% csrf_token %}
+                                    <div class="text-center">
+                                        <img src="{{ request.user.profile_images.url }}" alt="Profile Picture" id="profile-preview" class="img-fluid rounded-circle" style="max-width: 200px; max-height: 200px;">
+                                    </div>
+                                        {% for field in picture_form.visible_fields %}
+                                        <label>{{field.label}}</label>
+                                            {{field}}                                          
+                                        {% endfor %}
+                                    <button class="btn btn-primary btn-block mt-2">บันทึกรูปโปรไฟล์</button>  
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+            </main>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

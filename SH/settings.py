@@ -47,7 +47,7 @@ INSTALLED_APPS = [
     
 
 ]
-INSTALLED_APPS+=['widget_tweaks']
+INSTALLED_APPS+=['widget_tweaks', 'mathfilters']
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

@@ -1,16 +1,14 @@
 {% extends 'base.html' %} {% load static %} {% load humanize %} {% block content %}
 
 <section class="section-content padding-y bg">
-    {% include 'includes/alerts.html' %}
     <div class="container">
         <div class="row">
             <aside class="col-md-3">
                 <!--   SIDEBAR   -->
                 <ul class="list-group">
                     <a class="list-group-item active" href="{% url 'dashboard' %}"> Dashboard </a>
-                    <a class="list-group-item" href="#"> รายการขายของฉัน </a>
-                    <a class="list-group-item" href="{% url 'refund' %}"> การคืนเงิน </a>
-                    <a class="list-group-item" href="#"> การตั้งค่า </a>
+                    <!--<a class="list-group-item" href="{% url 'refund' %}"> การคืนเงิน </a>-->
+                    <a class="list-group-item" href="{% url 'setting' %}"> การตั้งค่า </a>
                     <a class="list-group-item" href="{% url 'reset_password' %}"> เปลี่ยนรหัสผ่าน </a>
                 </ul>
                 <br>
@@ -32,10 +30,10 @@
                                     </li>
                                     <li class="list-group-item">
                                       <strong>ที่อยู่:</strong> {{ order.address_line_1 }} 
-                                      {% if order.address_line_2 %} {{ order.address_line_2 }} {% endif %}
+                                      {% if order.address_line_2 %} {{ order.address_line_2 }} {% else %} - {% endif %}
                                     </li>
                                     <li class="list-group-item">
-                                        <strong>จังหวัด:</strong> {{ order.state }}
+                                        <strong>จังหวัด:</strong> {% if order.state %} {{ order.state }} {% else %} - {% endif %}
                                     </li>
                                     <li class="list-group-item">
                                       <strong>เบอร์โทร:</strong> {{ request.user.phone_number }}
@@ -46,16 +44,9 @@
                                   </ul>
                             </div>
                             <div class="offset-2 col-4">
-                                <form id="profile-form" method="POST" enctype="multipart/form-data">
-                                    <div class="mt-3">
-                                        <img src="{{ request.user.profile_picture.url }}" alt="Profile Picture" id="profile-preview" class="img-fluid rounded-circle" style="max-width: 200px; max-height: 200px;">
-                                      </div>
-                                    {% csrf_token %}
-                                    <div class="form-group">
-                                      <label for="profile-picture">รูปโปรไฟล์</label>
-                                      <input type="file" name="profile-picture" class="form-control-file" id="profile-picture">
-                                    </div>
-                                </form>
+                              <div class="">
+                                <img src="{{ request.user.profile_images.url }}" alt="Profile Picture" id="profile-preview" class="img-fluid rounded-circle" style="max-width: 200px; max-height: 200px;">
+                              </div>
                             </div>
                         </div>
                       </div>
@@ -97,7 +88,11 @@
                                     <p class="title mb-0 fw-semibold">วันที่สั่งซื้อ</p>
                                     <span>{{ thing.created_at }}</span>
                                   </td>
-                                  <td width="250"> <a href="#" class="btn btn-outline-primary">รายละเอียด</a></td>
+                                  <td> 
+                                    {% if thing.order_status == 'Completed' or thing.order_status == 'Accepted' %}
+                                      <a href="{% url 'order_detail' thing.order_number %}" class="btn btn-outline-primary">รายละเอียด</a>
+                                    {% endif %}
+                                  </td>
                               </tr>
                             {% endfor %}  
                           </tbody>

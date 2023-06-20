@@ -47,7 +47,7 @@ class Account(AbstractBaseUser):
     username = models.CharField(max_length=50, unique=True)
     email = models.EmailField(max_length=100, unique=True)
     phone_number = models.CharField(max_length=50, null=True, blank=True) # เพิ่มแอตทริบิวต์ phone_number ที่นี่
-    images = models.ImageField(upload_to='photos/profilepicture', default='default_profile_image.jpg')
+    profile_images = models.ImageField(upload_to='photos/profilepicture', default='default_profile_image.jpg')
     date_joined = models.DateTimeField(auto_now_add=True)
     last_login = models.DateTimeField(auto_now_add=True)
     admin = models.BooleanField(default=False)

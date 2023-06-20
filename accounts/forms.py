@@ -52,7 +52,7 @@ class RegistrationForm(forms.ModelForm):
 
 class ProfilePictureForm(forms.ModelForm):
 
-    images = forms.ImageField(
+    profile_images = forms.ImageField(
         required=True,
         widget=forms.FileInput(attrs={"class":"form-control","placeholder":"อัปโหลดรูปโปรไฟล์ของคุณ"}),
         label="รูปโปรไฟล์"
@@ -62,4 +62,46 @@ class ProfilePictureForm(forms.ModelForm):
 
     class Meta:
         model = Account
-        fields = ['images']
+        fields = ['profile_images']
+
+
+class ProfileSettingForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super(ProfileSettingForm, self).__init__(*args,**kwargs)
+        self.fields["email"].disabled = True
+        
+    first_name = forms.CharField(
+        required=True,
+        widget=forms.widgets.Input(attrs={"class":"form-control","placeholder":"ชื่อ"}),
+        label="ชื่อ"
+    )
+
+    last_name = forms.CharField(
+        required=True,
+        widget=forms.widgets.Input(attrs={"class":"form-control","placeholder":"นามสกุล"}),
+        label="นามสกุล"
+    )
+
+    username = forms.CharField(
+        required=True,
+        widget=forms.widgets.Input(attrs={"class":"form-control","placeholder":"ชื่อบัญชี"}),
+        label="ชื่อบัญชี"
+    )
+
+    email = forms.EmailField(
+        required=True,
+        widget=forms.widgets.Input(attrs={"class":"form-control","placeholder":"อีเมลล์"}),
+        label="อีเมลล์"
+    )
+
+    phone_number = forms.CharField(
+        required=True,
+        widget=forms.widgets.Input(attrs={"class":"form-control","placeholder":"เบอร์โทรศัพท์"}),
+        label="เบอร์โทรศัพท์"
+
+    )
+
+    class Meta:
+        model = Account
+        fields = ['first_name','last_name','username','email','phone_number']

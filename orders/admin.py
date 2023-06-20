@@ -3,10 +3,12 @@ from .models import Payment, Order, OrderProduct, Refund
 # Register your models here.
 
 
-class OrderProductInline(admin.TabularInline):
+class OrderProductAdmin(admin.ModelAdmin):
     model = OrderProduct
-    readonly_fields = ('payment', 'user', 'product', 'quantity', 'product_price', 'ordered')
-    extra = 0
+    list_display = ('payment', 'user', 'product', 'quantity', 'product_price', 'ordered')
+    list_filter = ('ordered',)
+    search_fields = ('created_at','updated_at')
+    list_per_page = 20
 class OrderAdmin(admin.ModelAdmin):
     list_display = ('order_number', 'full_name', 'phone', 'city', 'order_total', 'tax', 'order_status', 'created_at','is_ordered')
     list_filter = ('order_status',)
@@ -29,4 +31,4 @@ class PaymentAdmin(admin.ModelAdmin):
 admin.site.register(Refund, RefundAdmin)
 admin.site.register(Payment, PaymentAdmin)
 admin.site.register(Order, OrderAdmin)
-admin.site.register(OrderProduct)
+admin.site.register(OrderProduct,OrderProductAdmin)

@@ -193,6 +193,26 @@ def order_complete(request):
     except (Payment.DoesNotExist, Order.DoesNotExist):
         return redirect('store')    
 
+@login_required
+def order_detail(request, order_number):
+    
+    order = Order.objects.get(order_number=order_number)
+    order_product = OrderProduct.objects.filter(order_id=order.id) # []
+
+    print(order.id)
+    print(order_product)
+
+    context = {
+        'order': order, # Order
+        'order_product': order_product # [OrderProduct, ]
+    }
+
+    return render(request, 'orders/order_detail.html', context)
+
+
+
+
+    
 
 def refund(request):
     if request.method == 'POST':

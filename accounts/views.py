@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from .forms import RegistrationForm,LoginForm,ProfilePictureForm
+from .forms import RegistrationForm,LoginForm,ProfilePictureForm,ProfileSettingForm
 from .models import Account
 from django.contrib import messages, auth
 from django.contrib.auth.decorators import login_required
@@ -17,6 +17,7 @@ import requests
 from django.contrib.auth import authenticate, login
 from orders.forms import OrderForm
 from orders.models import Order
+from django.forms.models import model_to_dict
 
 def generate_unique_username(username_base):
     username = username_base
@@ -44,20 +45,6 @@ def register(request):
             user.is_active = True  # ให้ user นี้เปิดใช้งาน
             user.save()
 
-        # การเปิดใช้งานผู้ใช้
-        """current_site = get_current_site(request)
-        mail_subject = 'กรุณายืนยันการเปิดใช้งานบัญชีของคุณ'
-        message = render_to_string('accounts/account_verification_email.html', {
-            'user': user,
-            'domain': current_site,
-            'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-            'token': default_token_generator.make_token(user),
-        })
-        to_email = email
-        send_email = EmailMessage(mail_subject, message, to=[to_email])
-        send_email.send()"""
-        # messages.success(request, 'Thank you for registering with us. We have sent you a verification email to your email address [rathan.kumar@gmail.com]. Please verify it.')
-        #return redirect('/accounts/login/?command=verification&email='+email)
         messages.success(request, 'ลงทะเบียนสำเร็จกรุณาล๊อคอิน')
         return redirect('login')
     else:
@@ -120,21 +107,23 @@ def dashboard(request):
     order = orders.latest('created_at') if orders.exists() else None
 
     # สร้าง instance ของ ProfilePictureForm
-    form = ProfilePictureForm(request.POST or None, request.FILES or None, instance=request.user)
+    #picture_form = ProfilePictureForm()
+
 
     # ตรวจสอบการส่งข้อมูล POST
-    if request.method == 'POST':
-        if form.is_valid():
+    #if request.method == 'POST':
+        #profilepicture_form = ProfilePictureForm(request.POST, request.FILES, instance=request.user)
+        #if profilepicture_form.is_valid():
             # บันทึกข้อมูลที่ได้จากฟอร์ม
-            form.save()
-            messages.success(request, 'Profile picture updated successfully.')
-        else:
-            messages.error(request, 'There was an error updating your profile picture.')
+            #profilepicture_form.save()
+            #messages.success(request, 'Profile picture updated successfully.')
+        #else:
+            #messages.error(request, 'There was an error updating your profile picture.')
 
     context = {
         'order': order,
         'orders':orders,
-        'form': form,  # ส่ง form instance ไปที่ template
+          
     }
 
     return render(request, 'accounts/dashboard.html', context)
@@ -184,15 +173,14 @@ def resetpassword_validate(request, uidb64, token):
         messages.error(request, 'ลิงก์นี้หมดอายุแล้ว!')
         return redirect('login')
 
-
+@login_required
 def resetPassword(request):
     if request.method == 'POST':
         password = request.POST['password']
         confirm_password = request.POST['confirm_password']
 
         if password == confirm_password:
-            uid = request.session.get('uid')
-            user = Account.objects.get(pk=uid)
+            user = Account.objects.get(username=request.user.username)
             user.set_password(password)
             user.save()
             messages.success(request, 'การตั้งค่ารหัสผ่านเสร็จสมบูรณ์')
@@ -202,3 +190,32 @@ def resetPassword(request):
             return redirect('resetPassword')
     else:
         return render(request, 'accounts/resetPassword.html')
+
+def setting(request):
+    picture_form = ProfilePictureForm()
+    if request.method == 'POST':
+        profile_edit_form = ProfileSettingForm(request.POST, instance=request.user)
+        if profile_edit_form.is_valid():
+            profile_edit_form.save()
+            messages.success(request, 'Profile editing successful!')
+        else:
+            messages.error(request, 'There was an error from editing your profile.')
+
+        profilepicture_form = ProfilePictureForm(request.POST, request.FILES, instance=request.user)
+        if profilepicture_form.is_valid():
+            # บันทึกข้อมูลที่ได้จากฟอร์ม
+            profilepicture_form.save()
+            messages.success(request, 'Profile picture updated successfully.')
+        else:
+            messages.error(request, 'There was an error updating your profile picture.')
+      
+
+    # สร้าง form ใหม่กับข้อมูลที่อัพเดทแล้ว
+    setting_form = ProfileSettingForm(initial=model_to_dict(request.user))
+
+    context = {
+        'setting_form': setting_form,
+        'picture_form': picture_form
+    }
+
+    return render(request, 'accounts/profile_setting.html', context)

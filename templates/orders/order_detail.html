@@ -1,0 +1,113 @@
+{% extends 'base.html' %} 
+{% load static %} 
+{% load humanize %} 
+{% load mathfilters %}
+{% block content%}
+
+<section class="section-content padding-y bg">
+	<div class="container">
+		<div class="row">
+			<aside class="col-md-3">
+				<!--   SIDEBAR   -->
+				<ul class="list-group">
+					<a class="list-group-item active" href="{% url 'dashboard' %}"> Dashboard </a>
+					<!--<a class="list-group-item" href="{% url 'refund' %}"> การคืนเงิน </a>-->
+					<a class="list-group-item" href="{% url 'setting' %}"> การตั้งค่า </a>
+					<a class="list-group-item" href="{% url 'reset_password'%}"> เปลี่ยนรหัสผ่าน </a>
+				</ul>
+				<br>
+				<a class="btn btn-light btn-block" href="{% url 'logout' %}"> <i class="fa fa-power-off"></i> <span class="text">ออกจากระบบ</span> </a>
+				<!--   SIDEBAR .//END   -->
+			</aside>
+            <main class="col-md-9">
+                <article class="card">
+                    <header class="card-header">
+                        <strong class="d-inline-block mr-3"></strong>
+                        <span>รายละเอียดการสั่งซื้อ</span>
+                    </header>
+                    <div class="card-body">
+                        <div class="row">
+							<div class="col-12">
+								<h2 class="mb-3">หมายเลขคำสั่งซื้อ #{{order.order_number}}</h2>
+							</div>
+							<hr>
+                            <div class="col-6 mb-3">
+								<p class="text-115 text-custom-gray mb-2">
+									<b>ที่อยู่</b>: {{order.address_line_1}}
+									{% if order.address_line_2 %}
+										{{order.address_line_2}}
+									{% endif %}<br>
+									{{order.state}}
+									{{order.phone}}
+								</p>
+								<p class="text-115 text-custom-gray">
+									<b>วันที่สั่งซื้อ</b>: {{order.created_at}}
+								</p>
+							</div>
+							<div class="col-6 mb-3">
+								<p class="text-115 text-custom-gray mb-2">
+									<b>ช่องทางการชำระเงิน</b>: 
+									{{order.payment.payment_method}}
+								</p>
+								<p class="text-115 text-custom-gray mb-2">
+									<b>ส่วนลดที่ใช้</b>:
+									<span class="text-success">{{order.coupon}} ลด{{order.coupon.discount}}%</span>
+								</p>
+								<p class="text-115 text-custom-gray mb-2">
+									<b>ยอดรวม</b>: {{order.order_total | floatformat:2 | intcomma}}
+								</p>
+								<p class="text-115 text-custom-gray mb-2">
+									<b>ค่าส่ง</b>: {{order.tax}}
+								</p>
+								<p class="text-115 text-custom-gray mb-2">
+									<b>ลด</b>:
+									<span class="text-danger">
+										-{{order.order_total|mul:order.coupon.discount|div:100 | floatformat:2 | intcomma}}
+									</span>									
+								</p>
+								<p class="text-115 text-custom-gray">
+									<b>ยอดชำระ: {{order.payment.amount_paid | floatformat:2 | intcomma}}</b>
+								</p>
+								
+								
+							</div>
+							<div class="col-md-12">
+								<div class="table-responsive">
+									<table class="table table-hover">
+										<tbody class="bg_table">											
+											{% for product_item in order_product %}
+												<tr>
+													<td>
+														<p class="title mb-0 fw-semibold">รูปสินค้า</p>
+														<span><img src="{{product_item.product.images.url}}" class="img-sm"></span>
+													</td>
+													<td>
+														<p class="title mb-0 fw-semibold">ชื่อสินค้า</p>
+														<span>{{product_item.product}}</span>
+													</td>
+													<td>
+														<p class="title mb-0 fw-semibold">ราคาต่อชิ้น</p>
+														<span>{{product_item.product_price | floatformat:2 | intcomma}}</span> 
+													</td>
+													<td>
+														<p class="title mb-0 fw-semibold">ราคารวม</p>
+														<span>{{product_item.product_price|mul:product_item.quantity | floatformat:2 | intcomma}}</span>
+													</td>
+													<td>
+														<p class="title mb-0 fw-semibold">จำนวน</p>
+														<span>{{product_item.quantity}}</span>
+													</td>
+												</tr>
+											{% endfor %}
+										</tbody>
+									</table>
+								</div>
+							</div>
+                        </div>
+                    </div>
+                </article>
+            </main>
+		</div>
+	</div>
+</section>
+{% endblock %}

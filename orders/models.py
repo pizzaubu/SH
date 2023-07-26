@@ -7,6 +7,7 @@ from django.conf import settings
 class Payment(models.Model):
     STATUS_CHOICE = (
         ('Pending', 'Pending'),
+        ('Rejected','Rejected'),
         ('Approved', 'Approved')
     )
 
@@ -22,6 +23,7 @@ class Payment(models.Model):
     amount_paid = models.CharField(max_length=100) # this is the total amount paid
     status = models.CharField(max_length=100, choices=STATUS_CHOICE, default='Pending')
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     images = models.ImageField(upload_to='photos/payments', default='default_payment_image.jpg')
 
     def __str__(self):

@@ -38,9 +38,8 @@ def register(request):
             phone_number = form.cleaned_data['phone_number']
             email = form.cleaned_data['email']
             password = form.cleaned_data['password']
-            address = form.cleaned_data['address']
             username = email.split("@")[0]
-            user = Account.objects.create_user(first_name=first_name, last_name=last_name, email=email, username=username, password=password,address=address)
+            user = Account.objects.create_user(first_name=first_name, last_name=last_name, email=email, username=username, password=password)
             user.phone_number = phone_number
             user.is_active = True  # ให้ user นี้เปิดใช้งาน
             user.save()
@@ -66,7 +65,8 @@ def do_login(request):
         if user is not None:
             login(request, user)
             return redirect("/")
-        else: 
+        else:
+            messages.error(request,'รหัสผ่านไม่ถูกต้อง') 
             return redirect("login")
     else:
         login_forms = LoginForm()
@@ -103,8 +103,8 @@ def activate(request, uidb64, token):
 @login_required
 def dashboard(request):
     # ดึงข้อมูลการสั่งซื้อทั้งหมดของผู้ใช้
-    orders = Order.objects.filter(user=request.user)
-    order = orders.latest('created_at') if orders.exists() else None
+    orders = Order.objects.filter(user=request.user) # [Order, Order, Order]
+    order = orders.latest('created_at') if orders.exists() else None # Order
 
     # สร้าง instance ของ ProfilePictureForm
     #picture_form = ProfilePictureForm()

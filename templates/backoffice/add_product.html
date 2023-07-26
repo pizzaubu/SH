@@ -1,0 +1,308 @@
+{% extends 'base_backoffice.html' %}
+{% load humanize %}
+
+{% block content %}
+    <section>
+        <div class="container ps-2 pt-4 pe-2 pb-4">
+            <div class="row">
+                <div class="col-12">
+                    <h2>
+                        เพิ่ม/ลด สินค้า
+                    </h2>
+                    <div class="card">
+                        <div class="card-body">
+                            {% include 'includes/alerts.html' %}
+                                <div class="row">
+                                    <div class="col-6">
+                                        <h4>
+                                            เพิ่มสินค้า
+                                        </h4>
+                                    </div>
+                                    <div class="text-end col-6">
+                                        <a href="#" class="text-decoration-none" data-bs-toggle="modal" data-bs-target="#addCategory">
+                                            <button class="btn btn-primary btn-block">เพิ่มหมวดหมู่สินค้า</button>
+                                        </a>
+                                        <div class="modal fade text-start" id="addCategory" tabindex="-1" aria-hidden="True">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <form action="{% url 'edit_category' 'edit' %}" method="POST">
+                                                        {% csrf_token %}
+                                                        <div class="modal-header">
+                                                            <h4 class="modal-title" id="productModalLabel">
+                                                                เพิ่มหมวดหมู่สินค้า
+                                                            </h4>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <div class="col-12 mb-3">
+                                                                <label class="form-label" for="">ชื่อหมวดหมู่:</label>
+                                                                <input class="form-control" type="text" name="category_name" value="" >
+                                                            </div>
+                                                            <div class="col-12 mb-3">
+                                                                <label class="form-label" for="">slug:</label>
+                                                                <input class="form-control" type="text" name="category_slug" value="" >
+                                                            </div>
+                                                            <button class="btn btn-primary btn-block">เพิ่มหมวดหมู่</button>
+                                                        </div>
+                                                    </form>
+                                                    <div class="table-responsive mt-2">
+                                                        <table class="table table-hover">
+                                                            <tbody class="bg_table">
+                                                                <h5 class="mt-3">หมวดหมู่สินค้าทั้งหมด</h5>
+                                                                {% for category in categories %}
+                                                                    <tr>
+                                                                        <td>
+                                                                            <p class="title mb-0 fw-semibold">
+                                                                                ชื่อหมวดหมู่สินค้า
+                                                                            </p>
+                                                                            <span>
+                                                                                {{category.category_name}}
+                                                                            </span>
+                                                                        </td>
+                                                                        <td>
+                                                                            <p class="title mb-0 fw-semibold">
+                                                                                Slug
+                                                                            </p>
+                                                                            <span>
+                                                                                {{category.slug}}
+                                                                            </span>
+                                                                        </td>
+                                                                        <td>
+                                                                            <p class="title mb-0 fw-semibold">
+                                                                                Actions
+                                                                            </p>
+                                                                            <a href="#delete" onclick="categoryDelete('{{category.category_name}}')" class="text-decoration-none text-center">
+                                                                                <i class="fas fa-trash-alt text-danger fs-5"></i>
+                                                                            </a>
+                                                                        </td>
+                                                                    </tr>
+                                                                {% endfor %}
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            <form method="POST" action="{% url 'add_product' %}" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <div class="row mb-3 mt-3">
+                                    <div class="col-6 mb-3">
+                                        <label class="form-label mt-2" for="">รูปสินค้า:</label>
+                                        <input type="file" name="product_image" class="form-control" placeholder="อัปโหลดรูปสินค้า" accept="image/*">
+                                    </div>
+                                </div>
+                                <div class="row mb-3 mt-3">
+                                    <div class="col-4 mb-3">
+                                        <label class="form-label" for="">ชื่อสินค้า:</label>
+                                        <input class="form-control" type="text" name="product_name" value="" >
+                                    </div>
+                                    <div class="col-4 mb-3">
+                                        <label class="form-label" for="">Slug:</label>
+                                        <input class="form-control" type="text" name="slug" value="" >
+                                    </div>
+                                    <div class="col-4 mb-3">
+                                        <label class="form-label" for="">ราคา:</label>
+                                        <input class="form-control" type="text" name="price" value="" >
+                                    </div>
+                                    <div class="col-4 mb-3">
+                                        <label class="form-label" for="">จำนวนสินค้าในคลัง:</label>
+                                        <input class="form-control" type="text" name="stock" value="" >
+                                    </div>
+                                    <div class="col-4 mb-3">
+                                        <label class="form-label" for="">หมวดหมู่สินค้า:</label>
+                                        <select class="form-select" name="category" id="product_category">
+                                            <option value="">----Please select----</option>
+                                            {% for data in categories %}
+                                                <option value="{{data.category_name}}">
+                                                    {{data.category_name}}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="col-4 mb-3 mt-auto">
+                                        <label class="form-label" for="">Is available:</label>
+                                        <input type="checkbox" class="form-check-input" id="is_available"  autocomplete="off" name="available" value="True" checked>
+                                    </div>
+                                    <div class="col-12 mb-3">
+                                        <label class="form-label" for="">รายละเอียดสินค้า:</label>
+                                        <textarea class="form-control" name="description" id="product_description" cols="40" rows="10" placeholder="กรอกรายละเอียดสินค้า"></textarea>
+                                    </div>
+                                </div>
+                                <button class="btn btn-primary btn-block">เพิ่มสินค้า</button>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <div class="table-responsive mt-4">
+                        <table class="table table-hover">
+                            <tbody class="bg_table">
+                                {% for detail in product %}
+                                    <tr>
+                                        <td>
+                                            <p class="title mb-0 fw-semibold">
+                                                รหัสสินค้า
+                                            </p>
+                                            <span>
+                                                {{detail.slug}}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <p class="title mb-0 fw-semibold">
+                                                รูปสินค้า
+                                            </p>
+                                            <span><img src="{{detail.images.url}}" class="img-sm""></span> 
+                                        </td>
+                                        <td>
+                                            <p class="title mb-0 fw-semibold">
+                                                ชื่อสินค้า
+                                            </p>
+                                            <span>
+                                                {{detail.product_name}}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <p class="title mb-0 fw-semibold">
+                                                ราคา
+                                            </p>
+                                            <span>
+                                                {{detail.price | floatformat:2 | intcomma}}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <p class="title mb-0 fw-semibold">
+                                                จำนวนสินค้าในคลัง
+                                            </p>
+                                            <span>
+                                                {{detail.stock}}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <p class="title mb-0 fw-semibold">
+                                                หมวดหมู่สินค้า
+                                            </p>
+                                            <span>
+                                                {{detail.category}}
+                                            </span>
+                                        </td>
+                                        <!--<td>
+                                            <p class="title mb-0 fw-semibold">
+                                                รายละเอียดสินค้า
+                                            </p>
+                                            <span>
+                                                {{detail.description}}
+                                            </span>
+                                        </td>-->
+                                        <td>
+                                            <p class="title mb-0 fw-semibold">
+                                                Action
+                                            </p>
+                                            <a href="#" class="text-decoration-none" data-bs-toggle="modal" data-bs-target="#productModal{{detail.slug}}">
+                                                <i class="fas fa-edit fs-5"></i>
+                                            </a>
+                                            
+                                            <div class="modal fade" id="productModal{{detail.slug}}" tabindex="-1" aria-hidden="True">
+                                                <div class="modal-dialog">
+                                                    <div class="modal-content">
+                                                        <form method="POST" action="{% url 'edit_product' 'edit' detail.id %}" enctype="multipart/form-data">
+                                                            {% csrf_token %}
+                                                            <div class="modal-header">
+                                                                <h5 class="modal-title" id="productModalLabel">
+                                                                    ปรับแต่งข้อมูลสินค้า
+                                                                </h5>
+                                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                            </div>
+                                                            <div class="modal-body">
+                                                                <img src="{{ detail.images.url }}" alt="" width="100%" height="auto">
+                                                                <label class="form-label mt-2" for="">รูปสินค้า:</label>
+                                                                <input type="file" name="product_image" class="form-control" placeholder="อัปโหลดรูปสินค้า" accept="image/*">
+                                                                <div class="row mt-3">
+                                                                    <div class="col-12 mb-3">
+                                                                        <label class="form-label" for="">ชื่อสินค้า:</label>
+                                                                        <input class="form-control" type="text" name="product_name" value="{{detail.product_name}}" >
+                                                                    </div>
+                                                                    <div class="col-12 mb-3">
+                                                                        <label class="form-label" for="">Slug:</label>
+                                                                        <input class="form-control" type="text" name="slug" value="{{detail.slug}}">
+                                                                    </div>
+                                                                    <div class="col-12 mb-3">
+                                                                        <label class="form-label" for="">รายละเอียดสินค้า:</label>
+                                                                        <textarea class="form-control" name="description" id="product_description" cols="40" rows="10" placeholder="">{{detail.description}}</textarea>
+                                                                    </div>
+                                                                    <div class="col-12 mb-3">
+                                                                        <label class="form-label" for="">ราคา:</label>
+                                                                        <input class="form-control" type="text" name="price" value="{{detail.price}}">
+                                                                    </div>
+                                                                    <div class="col-12 mb-3">
+                                                                        <label class="form-label" for="">จำนวนสินค้าในคลัง:</label>
+                                                                        <input class="form-control" type="text" name="stock" value="{{detail.stock}}">
+                                                                    </div>
+                                                                    <div class="col-12 mb-3">
+                                                                        <label class="form-label" for="">Is available:</label>
+                                                                        <input type="checkbox" class="form-check-input" id="is_available"  autocomplete="off" name="available" value="{{detail.is_available}}" {% if detail.is_available == True %} checked {% endif %}>
+                                                                    </div>
+                                                                    <div class="col-12 mb-3">
+                                                                        <label class="form-label" for="">หมวดหมู่สินค้า:</label>
+                                                                        <select class="form-select" name="category" id="product_category">
+                                                                            {% for data in categories %}
+                                                                                {% if detail.category|stringformat:'s' == data.category_name|stringformat:'s' %} 
+                                                                                    <option value="{{data.category_name}}" selected>
+                                                                                        {{data.category_name}}
+                                                                                    </option>
+                                                                                {% else %}
+                                                                                    <option value="{{data.category_name}}">
+                                                                                        {{data.category_name}}
+                                                                                    </option>
+                                                                                {% endif %}
+                                                                            {% endfor %}
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button type="submit" class="btn btn-primary">
+                                                                    ยืนยันการปรับแต่งสินค้า
+                                                                </button>
+                                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button>
+                                                            </div>
+                                                        </form>   
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <a href="#delete" onclick="clickDelete('{{detail.id}}')" class="text-decoration-none">
+                                                <i class="fas fa-trash-alt text-danger fs-5"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <script>
+        function clickDelete(id) {
+            //alert("Test");
+            /*
+                let x = 10;
+                x = 30; // edit value of variable
+            */
+            const confirm_status = confirm("confirm delete this product??"); // ok = true, cancel = false
+            if(confirm_status == true) {
+                window.location.href =  "/backoffice/edit_product/delete/"+id;
+            }  
+            
+        }
+        function categoryDelete(category_name) {
+            const confirm_status = confirm("confirm delete this category??"); // ok = true, cancel = false
+            if(confirm_status == true) {
+                window.location.href =  "/backoffice/edit_category/delete/"+category_name;
+            }  
+            
+        }
+    </script>
+{% endblock %}

@@ -22,7 +22,7 @@ class RefundAdmin(admin.ModelAdmin):
     list_per_page = 20
 
 class PaymentAdmin(admin.ModelAdmin):
-    list_display = ['user','payment_id','payment_method','amount_paid','status']
+    list_display = ['user','payment_id','payment_method','amount_paid','status','created_at','updated_at']
     list_filter = ['payment_method', 'status']
     search_fields = ['user','payment_id']
     list_per_page = 20

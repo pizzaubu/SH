@@ -74,7 +74,9 @@ def payments(request):
             for i in ordered_products:
                 subtotal += i.product_price * i.quantity
 
-            order_discount = (subtotal + order.tax) * (order.coupon.discount/100)
+            order_discount = 0
+            if order.coupon is not None:
+                order_discount += (subtotal + order.tax) * (order.coupon.discount/100)
 
 
 

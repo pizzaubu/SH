@@ -1,0 +1,131 @@
+{% extends 'base_backoffice.html' %}
+{% load static %}
+{% load humanize%}
+{% load mathfilters %}
+
+{% block content %}
+<section class="section-content padding-y">
+    {% include 'includes/alerts.html' %}
+    <div class="container ps-2 pt-2 pe-2 pb-2">
+        <div class="row">
+            <div class="col-md-12">
+                <article class="card">
+                    <header class="card-header">
+                        <strong class="d-inline-block mr-3"></strong>
+                        <span>รายละเอียดการสั่งซื้อ</span>
+                    </header>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-12">
+                                <h2 class="mb-3">หมายเลขคำสั่งซื้อ # {{orders.order_number}}</h2>
+                            </div>
+                            <hr>
+                            <div class="col-6 mb-3">
+                                <p class="text-115 text-custom-gray mb-2">
+                                    <b>ที่อยู่:</b>{{orders.address_line_1}}
+                                        {% if orders.address_line_2 %}
+                                            {{orders.address_line_2}}
+                                        {% endif %}<br>
+                                        {{orders.state}}
+                                        {{orders.phone}}
+                                </p>
+                                <p class="text-115 text-custom-gray mb-2">
+									<b>วันที่สั่งซื้อ</b>: {{orders.created_at}}
+								</p>
+                                <p class="text-115 text-custom-gray">
+									<b>ข้อมูลเพิ่มเติม</b>: {{orders.order_note}}
+								</p>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <p class="text-115 text-custom-gray mb-2">
+									<b>ช่องทางการชำระเงิน</b>:{{orders.payment.payment_method}}
+								</p>
+                                <p class="text-115 text-custom-gray mb-2">
+									<b>ส่วนลดที่ใช้</b>: 
+                                    {% if orders.coupon.discount is not None %}
+                                        <span class="text-success">{{orders.coupon}} ลด{{orders.coupon.discount}}%</span>
+                                    {% else %}
+                                        <span class="text-success"> - </span>
+                                    {% endif %}
+								</p>
+                                <p class="text-115 text-custom-gray mb-2">
+									<b>ยอดรวม</b>: {{orders.order_total | floatformat:2 | intcomma}}
+								</p>
+                                <p class="text-115 text-custom-gray mb-2">
+									<b>ค่าส่ง</b>:{{orders.tax}}
+								</p>
+                                <p class="text-115 text-custom-gray mb-2">
+									<b>ลด</b>:
+                                    {% if orders.coupon.discount is not None %}
+                                        <span class="text-danger">
+                                            -{{orders.order_total|mul:orders.coupon.discount|div:100 | floatformat:2 | intcomma}}
+                                        </span>
+                                    {% else %}
+                                        <span class="text-danger">0 ฿</span>
+                                    {% endif %}								
+								</p>
+                                <p class="text-115 text-custom-gray">
+									<b>ยอดชำระ:</b> {{orders.payment.amount_paid | floatformat:2 | intcomma}}</b>
+								</p>
+                            </div>
+                        </div>
+                            <div class="row">
+                                    <div class="col-12 mb-2 mt-2">
+                                        {% if orders.order_status == 'Accepted' %}
+                                            <a href="{% url 'update_order_status' 'Completed' orders.id %}" class="ms-2 me-2 text-decoration-none">
+                                                <button class="btn btn-success btn-block me-2 mt-1">
+                                                    ส่งพัสดุ
+                                                </button>
+                                            </a>
+                                        {% endif %}
+                                        {% if orders.order_status != 'Completed' and orders.order_status != 'Cancelled' %} 
+                                            <a href="{% url 'update_order_status' 'Cancelled' orders.id %}" class="text-decoration-none">
+                                                <button class="btn btn-block btn-danger">
+                                                    ยกเลิกคำสั่งซื้อ
+                                                </button>
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                            </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <tbody class="bg_table">
+                                            {% for product_item in order_products %}
+                                                <tr>
+                                                    <td>
+                                                        <p class="title mb-0 fw-semibold">รูปสินค้า</p>
+                                                        <span><img src="{{product_item.product.images.url}}" class="img-sm"></span>
+                                                    </td>
+                                                    <td>
+                                                        <p class="title mb-0 fw-semibold">ชื่อสินค้า</p>
+                                                        <span>{{product_item.product}}</span>
+                                                    </td>
+                                                    <td>
+                                                        <p class="title mb-0 fw-semibold">ราคาต่อชิ้น</p>
+                                                        <span>{{product_item.product_price | floatformat:2 | intcomma}}</span> 
+                                                    </td>
+                                                    <td>
+                                                        <p class="title mb-0 fw-semibold">ราคารวม</p>
+                                                        <span>{{product_item.product_price|mul:product_item.quantity | floatformat:2 | intcomma}}</span>
+                                                    </td>
+                                                    <td>
+                                                        <p class="title mb-0 fw-semibold">จำนวน</p>
+                                                        <span>{{product_item.quantity}}</span>
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </div>
+    
+</section>
+{% endblock %}

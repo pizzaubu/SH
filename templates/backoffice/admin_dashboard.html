@@ -1,0 +1,262 @@
+{% extends 'base_backoffice.html' %}
+{% load humanize %}
+
+{% block content %}
+    <section>
+        <div class="container ps-2 pt-4 pe-2 pb-4">
+            <!-- summary row -->
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="card border-0 shadow">
+                        <div class="card-body p-4">
+                            <div class="row">
+                                <div class="col-8">
+                                    <h4>ออร์เดอร์ Pending</h4>
+                                    <h2>{{sum_order}} Order</h2>
+                                </div>
+                                <div class="col-4">
+                                    <img src="/static/image/icons/checklist.png" alt="" width="70%">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card border-0 shadow">
+                        <div class="card-body p-4">
+                            <div class="row">
+                                <div class="col-8">
+                                    <h4>ยอดรวมวันนี้</h4>
+                                    <h2>{{ today_total_income | floatformat:2 | intcomma }} ฿</h2>
+                                </div>
+                                <div class="col-4">
+                                    <img src="/static/image/icons/cost.png" alt="" width="70%">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card border-0 shadow">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-8">
+                                    <h4>สลีฟรอยืนยัน</h4>
+                                    <h2>{{ pending_payments_count }} รายการ</h2>
+                                </div>
+                                <div class="col-4">
+                                    <img src="/static/image/icons/invoice.png" alt="" width="80%">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <header class="card-header">
+                <h2>ออร์เดอร์ทั้งหมด</h2>
+            </header>
+            {% if orders %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <tbody class="bg_table">
+                            {% for data in orders %}
+                                <tr>
+                                    <td>
+                                        <p class="title mb-0 fw-semibold">หมายเลขคำสั่งซื้อ</p>
+                                        <span>{{data.order_number}}</span>
+                                    </td>
+                                    <td>
+                                        <p class="title mb-0 fw-semibold">ชื่อผู้ซื้อ</p>
+                                        <span>{{data.first_name}} {{data.last_name}}</span>
+                                    </td>
+                                    <td>
+                                        <p class="title mb-0 fw-semibold">อีเมลล์</p>
+                                        <span>{{data.email}}</span>
+                                    </td>
+                                    <td>
+                                        <p class="title mb-0 fw-semibold">เบอร์โทร</p>
+                                        <span>{{data.phone}}</span>
+                                    </td>
+                                    <td>
+                                        <p class="title mb-0 fw-semibold">ยอดรวม</p>
+                                        <span>{{data.order_total | floatformat:2 | intcomma}}</span>
+                                    </td>
+                                    <td>
+                                        <p class="title mb-0 fw-semibold">สถานะคำสั่งซื้อ</p>
+                                        {% if data.order_status == 'Completed' %}
+                                            <span class="badge bg-success">ส่งพัสดุแล้ว</span>
+                                        {% elif data.order_status == 'Accepted' %}
+                                            <span class="badge bg-info">ชำระเงินแล้ว</span>
+                                        {% elif data.order_status == 'New' %}
+                                            <span class="badge bg-success">รอชำระเงิน</span>
+                                        {% else%}
+                                            <span class="badge bg-danger">ยกเลิกคำสั่งซื้อ</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <p class="title mb-0 fw-semibold">เวลาสั่งซื้อ</p>
+                                        <span>{{data.created_at}}</span>
+                                    </td>
+                                    <td>
+                                        <p class="title mb-0 fw-semibold">รายละเอียดคำสั่งซื้อ</p>
+                                        {% if data.order_status == 'Completed' or data.order_status == 'Accepted' %}
+                                            <a href="{% url 'backoffice_order' data.order_number %}">
+                                                <button class="btn btn-outline-primary">รายละเอียด</button>
+                                            </a>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <p class="title mb-0 fw-semibold">รายละเอียดการชำระเงิน</p>
+                                            <div class="modal fade" id="imageModal-{{data.order_number}}" tabindex="-1" aria-hidden="True">
+                                                <div class="modal-dialog">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title" id="imageModalLabel">ใบเสร็จ</h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <img src="{{data.payment.images.url}}" alt="" width="100%" height="auto"> 
+                                                            <table class="table table-hover">
+                                                                <tbody class="bg_table">
+                                                                    <tr>
+                                                                        <td>
+                                                                            <p class="title mb-0 fw-semibold">ชื่อผู้ชำระเงิน</p>
+                                                                            <span>{{data.first_name}} {{data.last_name}}</span>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td>
+                                                                            <p class="title mb-0 fw-semibold">หมายเลขคำสั่งซื้อ</p>
+                                                                            <span>{{data.order_number}}</span>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td>
+                                                                            <p class="title mb-0 fw-semibold">ช่องทางการชำระเงิน</p>
+                                                                            <span>{{data.payment.payment_method}}</span>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td>
+                                                                            <p class="title mb-0 fw-semibold">จำนวนเงินที่ชำระ</p>
+                                                                            <span>
+                                                                                {{data.payment.amount_paid | floatformat:2 | intcomma}}
+                                                                            </span>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td>
+                                                                            <p class="title mb-0 fw-semibold">เวลาอัปโหลดใบเสร็จ</p>
+                                                                            <span>{{data.payment.created_at}}</span>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td>
+                                                                            {% if data.payment %}
+                                                                                <p class="title mb-0 fw-semibold">สถานะ</p>
+                                                                                {% if data.payment.status == 'Approved' %}
+                                                                                    <span class="text-success fw-bolder">
+                                                                                        {{data.payment.status}}
+                                                                                    </span>
+                                                                                {% elif data.payment.status == 'Rejected' %}
+                                                                                    <span class="text-danger fw-bolder">
+                                                                                        {{data.payment.status}}
+                                                                                    </span>
+                                                                                {% else %}
+                                                                                    <span class="fw-bolder">
+                                                                                        {{data.payment.status}}
+                                                                                    </span>
+                                                                                {% endif %}
+                                                                                <br>
+                                                                                {% if data.payment.status == 'Pending' %}                
+                                                                                    <a href="{% url 'update_payment_status' 'Approve' data.payment.id data.id %}"> 
+                                                                                        <button class="btn btn-success me-2 mt-1">
+                                                                                            Approve
+                                                                                        </button>
+                                                                                    </a>
+                                                                                    <a href="{% url 'update_payment_status' 'Reject' data.payment.id data.id %}">
+                                                                                        <button class="btn btn-danger">
+                                                                                            Reject
+                                                                                        </button> 
+                                                                                    </a>
+                                                                                {% endif %}
+                                                                            {% endif %}
+                                                                        </td>
+                                                                    </tr>
+                                                                </tbody>
+                                                                
+                                                            </table>                                                   
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {% if data.order_status == 'Completed' or data.order_status == 'Accepted' %}
+                                                <button class="btn btn-outline-primary" data-bs-target="#imageModal-{{data.order_number}}" data-bs-toggle="modal" >
+                                                    ใบเสร็จ
+                                                </button>
+                                            {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    
+                    <!--<header class="mt-4">
+                        <h2>รายการชำระเงินทั้งหมด</h2>
+                    </header> -->
+                    
+                    <!--<table class="table table-hover mt-4">
+                        <tbody class="bg_table">
+                            {% for check in bills %}
+                                <tr>
+                                    <td>
+                                        <p class="title mb-0 fw-semibold">ชื่อผู้ชำระเงิน</p>
+                                        <span>{{check.user.first_name}} {{check.user.last_name}}</span>
+                                    </td>
+                                    <td>
+                                        <p class="title mb-0 fw-semibold">หมายเลขคำสั่งซื้อ</p>
+                                        <span>{{check.order.order_number}}</span>
+                                    </td>
+                                    <td>
+                                        <p class="title mb-0 fw-semibold">ช่องทางการชำระเงิน</p>
+                                        <span>{{check.payment_method}}</span>
+                                    </td>
+                                    <td>
+                                        <p class="title mb-0 fw-semibold">จำนวนเงินที่ชำระ</p>
+                                        <span>{{check.amount_paid | floatformat:2 | intcomma}}</span>
+                                    </td>
+                                    <td>
+                                        <p class="title mb-0 fw-semibold">สถานะ</p>
+                                        <span>{{check.status}}</span>
+                                    </td>
+                                    <td>
+                                        <p class="title mb-0 fw-semibold">รายละเอียดการชำระเงิน</p>
+                                        <div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="True">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="imageModalLabel">ใบเสร็จ</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <img src="{{check.images.url}}" alt="" width="100%" height="auto">                                                    
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <button class="btn btn-outline-primary" data-bs-target="#imageModal" data-bs-toggle="modal" >
+                                            ใบเสร็จ
+                                        </button>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table> -->
+                </div>
+            {% else %}
+                <h4 class="text-center text-danger">ไม่มีออร์เดอร์!</h4>
+            {% endif %}
+        </div>
+    </section>
+{% endblock %}

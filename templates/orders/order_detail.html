@@ -51,7 +51,11 @@
 								</p>
 								<p class="text-115 text-custom-gray mb-2">
 									<b>ส่วนลดที่ใช้</b>:
-									<span class="text-success">{{order.coupon}} ลด{{order.coupon.discount}}%</span>
+									{% if order.coupon.discount is not None %}
+										<span class="text-success">{{order.coupon}} ลด{{order.coupon.discount}}%</span>
+									{% else %}
+										<span class="text-success"> - </span>
+									{% endif %}
 								</p>
 								<p class="text-115 text-custom-gray mb-2">
 									<b>ยอดรวม</b>: {{order.order_total | floatformat:2 | intcomma}}
@@ -61,9 +65,13 @@
 								</p>
 								<p class="text-115 text-custom-gray mb-2">
 									<b>ลด</b>:
-									<span class="text-danger">
-										-{{order.order_total|mul:order.coupon.discount|div:100 | floatformat:2 | intcomma}}
-									</span>									
+									{% if order.coupon.discount is not None %}
+										<span class="text-danger">
+											-{{order.order_total|mul:order.coupon.discount|div:100 | floatformat:2 | intcomma}}
+										</span>
+									{% else %}
+										<span class="text-danger">0 ฿</span>
+									{% endif %}									
 								</p>
 								<p class="text-115 text-custom-gray">
 									<b>ยอดชำระ: {{order.payment.amount_paid | floatformat:2 | intcomma}}</b>

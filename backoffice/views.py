@@ -1,7 +1,7 @@
 from django.shortcuts import render,redirect,get_object_or_404
-from .forms import AdminLoginForms
+from .forms import AdminLoginForms,AddCategoryForms
 from django.contrib.auth import authenticate,login as auth_login
-from django.contrib import messages
+from django.contrib import messages,auth
 from django.http import HttpResponse
 from orders.models import Order,Payment,OrderProduct
 from category.models import Category
@@ -33,7 +33,9 @@ def login(request):
         return render(request, 'backoffice/login.html',context)
 
 def logout(request):
-    return render(request, 'backoffice/logout.html')
+    auth.logout(request)
+    messages.success(request, 'คุณออกจากระบบเรียบร้อยแล้ว')
+    return redirect('backoffice_login')
 
 def order_detail(request,order_number):
     orders = Order.objects.get(order_number=order_number)
@@ -51,6 +53,7 @@ def add_product(request):
     product = Product.objects.filter().order_by('-created_date')
     categories = Category.objects.filter()
     product_add = Product()
+    category_add_form = AddCategoryForms()
 
     if request.method == 'POST':
         product_add.product_name = request.POST['product_name']
@@ -76,6 +79,7 @@ def add_product(request):
     context = {
         'product': product,
         'categories':categories,
+        'category_add_form':category_add_form
     }
     return render(request, 'backoffice/add_product.html',context)
 
@@ -106,7 +110,22 @@ def edit_product(request, choices, product_id):
 
     return redirect('add_product')
 
-def edit_category(request):
+def edit_category(request,edit,category_id):
+    category = Category.objects.get(id=category_id)
+    if edit == 'delete':
+        category.delete()
+    return redirect('add_product')
+
+def add_category(request):
+    if request.method == 'POST':
+        form = AddCategoryForms(request.POST)
+        if form.is_valid:
+           form.save()
+           messages.success(request,('เพิ่มหมวดหมู่สำเร็จ'))
+         
+        else:
+            messages.error(request,('เพิ่มหมวดหมู่ไม่สำเร็จ'))
+
     return redirect('add_product')
 
 def product_adjust(request):
@@ -160,10 +179,10 @@ def update_order_status(request,status,order_id):
         order.save()
         messages.error(request,'ยกเลิกสินค้าแล้ว')
     else:
-        return redirect('backoffice_order',order_number=order.order_number)
+        return redirect('admin_dashboard')
 
     
-    return redirect('backoffice_order',order_number=order.order_number)
+    return redirect('admin_dashboard')
 
 def admin_dashboard(request):
     orders = Order.objects.filter().order_by("-created_at") #แสดงออร์เดอร์ทั้งหมด และเรียงลำดับจากมากไปน้อย

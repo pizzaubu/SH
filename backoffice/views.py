@@ -128,28 +128,6 @@ def add_category(request):
 
     return redirect('add_product')
 
-def product_adjust(request):
-    return render(request, 'backoffice/product_adjust.html')
-
-def add_coupon(request):
-    return render(request, 'backoffice/add_coupon.html')
-
-def sales_summary(request):
-    return render(request, 'backoffice/sales_summary.html')
-
-def account_adjust(request):
-    return render(request, 'backoffice/account_adjust.html')
-
-def order_status(request):
-    return render(request, 'backoffice/order_status.html')
-
-def order_review(request):
-    return render(request, 'backoffice/order_review.html')
-
-def payment_notice(request):
-
-    return render(request, 'backoffice/payment_notice.html')
-
 def update_payment_status(request,status,payment_id,order_id):
     payment = Payment.objects.get(id=payment_id) # Payment
     order = Order.objects.get(id=order_id)

@@ -7,17 +7,6 @@
     <div class="container">
 <!-- ============================ COMPONENT LOGIN   ================================= -->
 
-    {% if request.GET.command == 'verification' %}
-
-        <div class="row" role="alert" >
-            <div class="col-12">
-                <p>ขอบคุณที่ลงทะเบียนกับเรา พวกเราได้ส่งอีเมลยืนยันไปยังที่อยู่อีเมลของคุณ [{{ request.GET.email }}]</p>
-                <p>ยืนยันแล้ว? <a href="{% url 'login' %}">เข้าสู่ระบบ</a></p>
-            </div>
-        </div>
-
-    {% else %}
-
         <div class="row" >
             <div class="offset-4 col-4">
                 <div class="card">
@@ -56,7 +45,6 @@
 
             
 <!-- ============================ COMPONENT LOGIN  END.// ================================= -->
-    {% endif %}
     </div>
 </section>
 {% endblock %}

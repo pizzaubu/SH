@@ -59,13 +59,21 @@ def cart(request):
 @login_required(login_url='login')
 def add_cart(request, product_id):
     product = get_object_or_404(Product, id=product_id)
-    cart, created = Cart.objects.get_or_create(user=request.user) # cart_id = 1234
-    cart.cart_id = cart.id
-    cart.save()
+    cart, created = Cart.objects.get_or_create(user=request.user)
     cart_item, created = CartItem.objects.get_or_create(product=product, user=request.user, quantity=0, is_active=True, cart=cart)
-    cart_item.quantity += 1
+
+    # รับค่าจำนวนสินค้าที่ผู้ใช้เลือก
+    quantity = request.POST.get('quantity', 1)
+    try:
+        quantity = int(quantity)
+    except ValueError:
+        quantity = 1
+
+    cart_item.quantity += quantity
     cart_item.save()
+
     return redirect('cart')
+
 
 @login_required(login_url='login')
 def update_cart(request, cart_id, product_id,action):

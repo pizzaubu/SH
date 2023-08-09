@@ -45,7 +45,6 @@
                 {% else %}
                 <form method="post" action="{% url 'add_cart' single_product.id %}">
                     {% csrf_token %}
-                    <!--<input type="number" name="quantity" value="1" min="1" max="{{ single_product.stock }}" />-->
                     <div class="row">
                         <div class="col-4">
                             <select class="form-select" name="quantity" id="quantity">

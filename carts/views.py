@@ -60,6 +60,8 @@ def cart(request):
 def add_cart(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     cart, created = Cart.objects.get_or_create(user=request.user)
+    cart.cart_id = cart.id
+    cart.save()
     cart_item, created = CartItem.objects.get_or_create(product=product, user=request.user, quantity=0, is_active=True, cart=cart)
 
     # รับค่าจำนวนสินค้าที่ผู้ใช้เลือก

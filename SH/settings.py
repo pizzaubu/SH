@@ -85,13 +85,29 @@ WSGI_APPLICATION = 'SH.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
-DATABASES = {
+"""DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'Pongpanot$shdb',
         'USER': 'Pongpanot',
         'PASSWORD': 'mrpz171853',
         'HOST': 'Pongpanot.mysql.pythonanywhere-services.com',
+        'PORT': '',
+        'OPTIONS': {
+            'charset': 'utf8mb4',
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+        },
+    }
+}"""
+
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'shdb',
+        'USER': 'root',
+        'PASSWORD': '',
+        'HOST': 'localhost',
         'PORT': '',
         'OPTIONS': {
             'charset': 'utf8mb4',

@@ -19,16 +19,6 @@ from orders.forms import OrderForm
 from orders.models import Order
 from django.forms.models import model_to_dict
 
-def generate_unique_username(username_base):
-    username = username_base
-    counter = 1
-
-    while User.objects.filter(username=username).exists():
-        username = f"{username_base}{counter}"
-        counter += 1
-
-    return username
-
 def register(request):
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
@@ -83,43 +73,13 @@ def logout(request):
     return redirect('login')
 
 
-def activate(request, uidb64, token):
-    try:
-        uid = urlsafe_base64_decode(uidb64).decode()
-        user = Account._default_manager.get(pk=uid)
-    except(TypeError, ValueError, OverflowError, Account.DoesNotExist):
-        user = None
-
-    if user is not None and default_token_generator.check_token(user, token):
-        user.is_active = True
-        user.save()
-        messages.success(request, 'ยินดีด้วย! บัญชีของคุณได้รับการเปิดใช้งานแล้ว')
-        return redirect('login')
-    else:
-        messages.error(request, 'ลิงค์เปิดใช้งานไม่ถูกต้อง')
-        return redirect('register')
-
-
 @login_required
 def dashboard(request):
     # ดึงข้อมูลการสั่งซื้อทั้งหมดของผู้ใช้
     orders = Order.objects.filter(user=request.user) # [Order, Order, Order]
     order = orders.latest('created_at') if orders.exists() else None # Order
 
-    # สร้าง instance ของ ProfilePictureForm
-    #picture_form = ProfilePictureForm()
-
-
-    # ตรวจสอบการส่งข้อมูล POST
-    #if request.method == 'POST':
-        #profilepicture_form = ProfilePictureForm(request.POST, request.FILES, instance=request.user)
-        #if profilepicture_form.is_valid():
-            # บันทึกข้อมูลที่ได้จากฟอร์ม
-            #profilepicture_form.save()
-            #messages.success(request, 'Profile picture updated successfully.')
-        #else:
-            #messages.error(request, 'There was an error updating your profile picture.')
-
+   
     context = {
         'order': order,
         'orders':orders,
@@ -129,49 +89,6 @@ def dashboard(request):
     return render(request, 'accounts/dashboard.html', context)
 
 
-
-
-def forgotPassword(request):
-    if request.method == 'POST':
-        email = request.POST['email']
-        if Account.objects.filter(email=email).exists():
-            user = Account.objects.get(email__exact=email)
-
-            # Reset password email
-            current_site = get_current_site(request)
-            mail_subject = 'ตั้งค่ารหัสผ่านใหม่ของคุณ'
-            message = render_to_string('accounts/reset_password_email.html', {
-                'user': user,
-                'domain': current_site,
-                'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-                'token': default_token_generator.make_token(user),
-            })
-            to_email = email
-            send_email = EmailMessage(mail_subject, message, to=[to_email])
-            send_email.send()
-
-            messages.success(request, 'อีเมล์ตั้งค่ารหัสผ่านใหม่ถูกส่งไปยังที่อยู่อีเมล์ของคุณแล้ว')
-            return redirect('login')
-        else:
-            messages.error(request, 'ไม่พบบัญชี!')
-            return redirect('forgotPassword')
-    return render(request, 'accounts/forgotPassword.html')
-
-
-def resetpassword_validate(request, uidb64, token):
-    try:
-        uid = urlsafe_base64_decode(uidb64).decode()
-        user = Account._default_manager.get(pk=uid)
-    except(TypeError, ValueError, OverflowError, Account.DoesNotExist):
-        user = None
-
-    if user is not None and default_token_generator.check_token(user, token):
-        request.session['uid'] = uid
-        messages.success(request, 'กรุณาตั้งค่ารหัสผ่านใหม่ของคุณ')
-        return redirect('resetPassword')
-    else:
-        messages.error(request, 'ลิงก์นี้หมดอายุแล้ว!')
-        return redirect('login')
 
 @login_required
 def resetPassword(request):

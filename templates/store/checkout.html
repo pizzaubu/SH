@@ -11,7 +11,7 @@
 						<form method="post" action="{% url 'place_order' %}">
 							{% csrf_token %}
                             <input type='hidden' name="total" value="{{total}}" >
-							<input type='hidden' name="tax" value="{{tax}}">
+							<input type='hidden' name="shipping" value="{{shipping}}">
 							<input type='hidden' name="coupon" value="{{coupon}}">
 							
 							<div class="row">
@@ -78,7 +78,7 @@
 								<p>ค่าส่ง:</p>
 							</div>
 							<div class="col-6">
-								<p class="text-right"> ฿ {{tax | floatformat:2 | intcomma}}</p>
+								<p class="text-right"> ฿ {{shipping | floatformat:2 | intcomma}}</p>
 							</div>
 						</div>
 						<div class="row mb-1">

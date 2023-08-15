@@ -30,7 +30,7 @@ class Migration(migrations.Migration):
                 ('city', models.CharField(max_length=50)),
                 ('order_note', models.CharField(blank=True, max_length=100)),
                 ('order_total', models.FloatField()),
-                ('tax', models.FloatField()),
+                ('shipping', models.FloatField()),
                 ('order_status', models.CharField(choices=[('New', 'New'), ('Accepted', 'Accepted'), ('Completed', 'Completed'), ('Cancelled', 'Cancelled')], default='New', max_length=10)),
                 ('ip', models.CharField(blank=True, max_length=20)),
                 ('is_ordered', models.BooleanField(default=False)),

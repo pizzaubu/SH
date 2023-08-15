@@ -29,7 +29,7 @@
                         <h3 class="card-header">หลักฐานการชำระเงิน</h3>
                         <div class="card-body">
                             <p class="card-text"><b>ราคารวม:</b>฿ {{total | floatformat:2 | intcomma }}</p>
-                            <p class="card-text"><b>ค่าส่ง:</b>฿ {{tax | floatformat:2 | intcomma}} </p>
+                            <p class="card-text"><b>ค่าส่ง:</b>฿ {{shipping | floatformat:2 | intcomma}} </p>
                             {% if coupon is not None %}
                             <p class="text-right text-success"><b>คูปอง:</b>฿{{discount | floatformat:2 | intcomma}} ({{coupon.discount}}%)</p>
                             {% endif %}

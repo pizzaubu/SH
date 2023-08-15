@@ -76,7 +76,7 @@
                                             </tr>
                                             <tr>
                                                 <th colspan="2" class="text-right" scope="row">ค่าจัดส่ง:</th>
-                                                <th class="text-center" scope="col">{{order.tax| floatformat:2 | intcomma}} บาท</th>
+                                                <th class="text-center" scope="col">{{order.shipping| floatformat:2 | intcomma}} บาท</th>
                                             </tr>
                                             {% if order.coupon is not None %}
                                                 <tr>

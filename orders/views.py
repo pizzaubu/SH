@@ -76,7 +76,7 @@ def payments(request):
 
             order_discount = 0
             if order.coupon is not None:
-                order_discount += (subtotal + order.tax) * (order.coupon.discount/100)
+                order_discount += (subtotal + order.shipping) * (order.coupon.discount/100)
 
 
 
@@ -106,8 +106,8 @@ def place_order(request):
     order_form = OrderForm(request.POST)
     payment_form = PaymentForm(request.POST)
     total = float(request.POST.get("total"))
-    tax = float(request.POST.get("tax"))
-    grand_total = total + tax
+    shipping = float(request.POST.get("shipping"))
+    grand_total = total + shipping
     coupon_code = request.POST.get("coupon") # 123ABC
     coupon = None
     discount = 0
@@ -132,7 +132,7 @@ def place_order(request):
             data.state = order_form.cleaned_data['state']
             data.order_note = order_form.cleaned_data['order_note']
             data.order_total = total
-            data.tax = tax
+            data.shipping = shipping
             data.coupon = coupon
             data.ip = request.META.get('REMOTE_ADDR')
             data.save()
@@ -152,7 +152,7 @@ def place_order(request):
                 'order': order,
                 'cart_items': cart_items,
                 'total': total,
-                'tax': tax,
+                'shipping': shipping,
                 'coupon':coupon,
                 'discount':discount,
                 'final_prize': final_prize,

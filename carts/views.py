@@ -33,10 +33,10 @@ def _calculate_cart_total(cart_items):
         quantity += cart_item.quantity
     return total, quantity
 
-def _calculate_tax_and_grand_total(total):
-    tax = (2 * total) / 100
-    grand_total = total + tax
-    return tax, grand_total
+def _calculate_shipping_and_grand_total(total):
+    shipping = (2 * total) / 100
+    grand_total = total + shipping
+    return shipping, grand_total
 
 
 
@@ -45,13 +45,13 @@ def _calculate_tax_and_grand_total(total):
 def cart(request):
     cart_items = _get_cart_items(request)
     total, quantity = _calculate_cart_total(cart_items)
-    tax, grand_total = _calculate_tax_and_grand_total(total)
+    shipping, grand_total = _calculate_shipping_and_grand_total(total)
 
     context = {
         'total': total,
         'quantity': quantity,
         'cart_items': cart_items,
-        'tax': tax,
+        'shipping': shipping,
         'grand_total': grand_total,
     }
     return render(request, 'store/cart.html', context)
@@ -115,7 +115,7 @@ def remove_cart_item(request, product_id, cart_item_id):
 def checkout(request):
     cart_items = _get_cart_items(request)
     total, quantity = _calculate_cart_total(cart_items)
-    tax, grand_total = _calculate_tax_and_grand_total(total)
+    shipping, grand_total = _calculate_shipping_and_grand_total(total)
     
     coupon_code = request.GET.get("coupon") # 123abc
     order_form = OrderForm(initial=model_to_dict(request.user))
@@ -135,7 +135,7 @@ def checkout(request):
         'total': total,
         'quantity': quantity,
         'cart_items': cart_items,
-        'tax': tax,
+        'shipping': shipping,
         'grand_total': grand_total,
         'coupon': coupon,
         'discount': discount,

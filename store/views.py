@@ -156,13 +156,6 @@ def apply_coupon(request):
 
     return JsonResponse(data)
 
-def coupon_detail(request, code):
-    coupon = get_coupon(code)
-    if coupon:
-        context = {'coupon': coupon}
-        return render(request, 'coupon_detail.html', context)
-    else:
-        return render(request, 'error.html')
     
 def product_filter(request):
     # ตัวอย่างของการสร้างลิสต์หมวดหมู่

@@ -55,22 +55,6 @@ class OrderForm(forms.ModelForm):
         fields = ['first_name', 'last_name', 'phone', 'email', 'address_line_1', 'address_line_2', 'state', 'order_note']
 
 
-class ReturnForm(forms.ModelForm):
-
-    order = forms.ModelChoiceField(
-        queryset=Order.objects.all(),
-        widget=forms.Select(attrs={"class": "form-control"}),
-        label="Order"
-    )
-
-    reason = forms.CharField(
-        widget=forms.Textarea(attrs={"class": "form-control", "placeholder": "เหตุผลในการคืนสินค้า"}),
-        label="Reason"
-    )
-
-    class Meta:
-        model = Refund
-        fields = ['order', 'reason']
 
 class PaymentForm(forms.ModelForm):
 

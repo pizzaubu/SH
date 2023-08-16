@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, JsonResponse
 from carts.models import CartItem
-from .forms import OrderForm,ReturnForm,PaymentForm
+from .forms import OrderForm,PaymentForm
 import datetime
 from .models import Account, Order, Payment, OrderProduct
 import json
@@ -216,20 +216,4 @@ def order_detail(request, order_number):
 
     
 
-def refund(request):
-    if request.method == 'POST':
-        return_form = ReturnForm(request.POST)
-        if return_form.is_valid():
-            refund_request = return_form.save(commit=False)
-            refund_request.email = request.user.email
-            refund_request.save()
-            return redirect('success_page')
-    else:
-        return_form = ReturnForm()
 
-    # สร้าง dictionary เพื่อส่งตัวแปร context ไปยัง template
-    context = {
-        'return_form': return_form,
-        'title': 'Request Refund',  # ตัวอย่างสร้าง title
-    }
-    return render(request, 'orders/refund.html', context)

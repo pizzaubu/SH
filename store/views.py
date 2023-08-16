@@ -63,24 +63,7 @@ def product_detail(request, category_slug, product_slug):
     yellow_star_avg = range(0)
     grey_star_avg = range(0)
     yellow_half_avg = False
-    """
-    reviews = [
-        {},
-        {},
-        {},
-        {
-            rating: 1.0
-        }
-    ]
-
-
-    reviews[i]
-    {
-        "rating": 5.0,
-        "user": "Aungkoon",
-        "subject": "Test"
-    }
-    """
+    
     if len(reviews) >= 1 :
         for i in range(len(reviews)):
             reviews[i].yellow_star = range(int(reviews[i].rating))

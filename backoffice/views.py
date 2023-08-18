@@ -56,35 +56,37 @@ def add_product(request):
     category_add_form = AddCategoryForms()
 
     if request.method == 'POST':
-        product_add.product_name = request.POST['product_name']
-        product_add.slug = request.POST['slug'].replace(' ','-')
-        product_add.description = request.POST['description']
-        product_add.price = request.POST['price']
-        product_add.stock = request.POST['stock']
+        product_add.product_name = request.POST.get('product_name')
+        product_add.slug = request.POST.get('slug').replace(' ','-')
+        product_add.description = request.POST.get('description')
+        product_add.price = request.POST.get('price')
+        product_add.stock = request.POST.get('stock')
         product_add.is_available = 'available' in request.POST
 
         image = request.FILES.get('product_image', None)
         if image:
             product_add.images = image 
 
-        category_name = request.POST['category']
+        category_name = request.POST.get('category')
         category = Category.objects.get(category_name=category_name)
         product_add.category = category
 
+        # ตรวจสอบว่าข้อมูลที่รับมามีความครบถ้วนหรือไม่
+        if None in [product_add.product_name, product_add.slug, product_add.description, product_add.price, product_add.stock, category_name]:
+            messages.error(request, 'เพิ่มสินค้าไม่สำเร็จกรุณากรอกข้อมูลให้ครบถ้วน')
+            return render(request, 'backoffice/add_product.html', context)
 
         product_add.save()
-        messages.success(request,'เพิ่มสินค้าสำเร็จ')
+        messages.success(request, 'เพิ่มสินค้าสำเร็จ')
         return redirect('add_product')
-    
-        
-    
 
     context = {
         'product': product,
         'categories':categories,
         'category_add_form':category_add_form
     }
-    return render(request, 'backoffice/add_product.html',context)
+    return render(request, 'backoffice/add_product.html', context)
+
 
 def edit_product(request, choices, product_id):
     product = Product.objects.get(id=product_id)

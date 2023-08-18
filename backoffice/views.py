@@ -75,6 +75,10 @@ def add_product(request):
         product_add.save()
         messages.success(request,'เพิ่มสินค้าสำเร็จ')
         return redirect('add_product')
+    else:
+        messages.error(request,'เพิ่มสินค้าไม่สำเร็จกรุณากรอกข้อมูลให้ครบถ้วน')
+        
+    
 
     context = {
         'product': product,

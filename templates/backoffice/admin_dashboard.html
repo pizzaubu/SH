@@ -1,10 +1,11 @@
 {% extends 'base_backoffice.html' %}
 {% load humanize %}
+{% load mathfilters %}
 
 {% block content %}
     <section>
         {% include 'includes/alerts.html' %}
-        <div class="container ps-2 pt-4 pe-2 pb-4">
+        <div class="container-fluid ps-2 pt-4 pe-2 pb-4">
             <!-- summary row -->
             <div class="row mb-4">
                 <div class="col-md-4">
@@ -81,7 +82,23 @@
                                     </td>
                                     <td>
                                         <p class="title mb-0 fw-semibold">ยอดรวม</p>
-                                        <span>{{data.order_total | floatformat:2 | intcomma}}</span>
+                                        <span>{{data.order_total | floatformat:2 | intcomma}}฿</span>
+                                    </td>
+                                    <td>
+                                        <p class="title mb-0 fw-semibold">ค่าส่ง</p>
+                                        <span>{{data.shipping | floatformat:2 | intcomma}}฿</span>
+                                    </td>
+                                    <td>
+                                        <p class="title mb-0 fw-semibold">ส่วนลด</p>
+                                        {% if data.coupon.discount is not None %}
+                                            <span>{{data.order_total|mul:data.coupon.discount|div:100 | floatformat:2 | intcomma}}฿</span>
+                                        {% else%}
+                                            <span class="text-danger">ไม่มีส่วนลด</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <p class="title mb-0 fw-semibold">ยอดรวมหลังหักส่วนลด + ค่าส่ง</p>
+                                        <span class="text-success fw-semibold">{{data.payment.amount_paid | floatformat:2 | intcomma}}฿</span>
                                     </td>
                                     <td>
                                         <p class="title mb-0 fw-semibold">สถานะคำสั่งซื้อ</p>

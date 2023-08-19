@@ -176,6 +176,9 @@ def admin_dashboard(request):
         updated_at__gte=today
     ).aggregate(total=Sum('amount_paid'))['total'] or 0
 
+    
+
+
 
 
 

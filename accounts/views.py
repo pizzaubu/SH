@@ -136,3 +136,25 @@ def setting(request):
     }
 
     return render(request, 'accounts/profile_setting.html', context)
+
+def forgotPassword(request):
+    if request.method == 'POST':
+        email = request.POST['email']  # ข้อมูล email ที่รับเข้ามา
+        password = request.POST['password']
+        confirm_password = request.POST['confirm_password']
+
+        try:
+            user = Account.objects.get(email=email)  # ลองดึง user จาก database ด้วย email
+            if password == confirm_password:
+                user.set_password(password)
+                user.save()
+                messages.success(request, 'การตั้งค่ารหัสผ่านเสร็จสมบูรณ์')
+                return redirect('login')
+            else:
+                messages.error(request, 'รหัสผ่านไม่ตรงกัน!')
+                return redirect('resetPassword')
+        except Account.DoesNotExist:
+            messages.error(request, 'ไม่พบ email กรุณากรอก email ที่ถูกต้อง หรือสมัครสมาชิกใหม่')
+            return redirect('forgot_password')
+    else:
+        return render(request, 'accounts/forgot_password.html')

@@ -201,8 +201,6 @@ def order_detail(request, order_number):
     order = Order.objects.get(order_number=order_number)
     order_product = OrderProduct.objects.filter(order_id=order.id) # []
 
-    print(order.id)
-    print(order_product)
 
     context = {
         'order': order, # Order

@@ -88,7 +88,7 @@ WSGI_APPLICATION = 'SH.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'Pongpanot$SECONDHAND',
+        'NAME': 'Pongpanot$shdb',
         'USER': 'Pongpanot',
         'PASSWORD': 'mrpz171853',
         'HOST': 'Pongpanot.mysql.pythonanywhere-services.com',

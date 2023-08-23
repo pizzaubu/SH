@@ -90,7 +90,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'Pongpanot$shdb',
         'USER': 'Pongpanot',
-        'PASSWORD': 'mrpz171853',
+        'PASSWORD': 'Pizza171',
         'HOST': 'Pongpanot.mysql.pythonanywhere-services.com',
         'PORT': '',
         'OPTIONS': {

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Payment, Order, OrderProduct, Refund
+from .models import Payment, Order, OrderProduct
 # Register your models here.
 
 
@@ -15,11 +15,6 @@ class OrderAdmin(admin.ModelAdmin):
     search_fields = ('order_number', 'first_name', 'last_name', 'phone', 'email')
     list_per_page = 20
 
-class RefundAdmin(admin.ModelAdmin):
-    list_display = ['order', 'reason', 'accepted', 'email']
-    list_filter = ['accepted', 'order']
-    search_fields = ['order__order_number', 'email']
-    list_per_page = 20
 
 class PaymentAdmin(admin.ModelAdmin):
     list_display = ['user','payment_id','payment_method','amount_paid','status','created_at','updated_at']
@@ -28,7 +23,6 @@ class PaymentAdmin(admin.ModelAdmin):
     list_per_page = 20
 
 
-admin.site.register(Refund, RefundAdmin)
 admin.site.register(Payment, PaymentAdmin)
 admin.site.register(Order, OrderAdmin)
 admin.site.register(OrderProduct,OrderProductAdmin)

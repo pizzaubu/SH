@@ -34,7 +34,7 @@ def _calculate_cart_total(cart_items):
     return total, quantity
 
 def _calculate_shipping_and_grand_total(total):
-    shipping = (2 * total) / 100
+    shipping = 50
     grand_total = total + shipping
     return shipping, grand_total
 

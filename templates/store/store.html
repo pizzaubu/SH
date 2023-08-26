@@ -54,33 +54,15 @@
                         <div class="filter-content collapse show" id="collapse_3" style="">
                             <div class="card-body">
                                 <form method="get" action="{% url 'product_filter' %}">
-                                    <input type="hidden" name="category" value="{{ selected_category }}">  <!-- เพิ่ม input ซ่อนหมวดหมู่ที่เลือก -->
+                                    <input type="hidden" name="category" value="{{ selected_category }}">
                                     <div class="form-row">
                                         <div class="form-group col-md-6">
                                             <label>ต่ำสุด</label>
-                                            <select class="mr-2 form-control" name="min_price">
-                                                <!-- รายการตัวเลือกของราคาต่ำสุด -->
-                                                <option value="0">฿0</option>
-                                                <option value="50">฿50</option>
-                                                <option value="100">฿100</option>
-                                                <option value="150">฿150</option>
-                                                <option value="200">฿200</option>
-                                                <option value="500">฿500</option>
-                                                <option value="1000">฿1000</option>
-                                            </select>
+                                            <input type="number" class="mr-2 form-control" name="min_price" placeholder="กรอกราคาต่ำสุด">
                                         </div>
                                         <div class="form-group text-right col-md-6">
                                             <label>สูงสุด</label>
-                                            <select class="mr-2 form-control" name="max_price">
-                                                <!-- รายการตัวเลือกของราคาสูงสุด -->
-                                                <option value="50">฿50</option>
-                                                <option value="100">฿100</option>
-                                                <option value="150">฿150</option>
-                                                <option value="200">฿200</option>
-                                                <option value="500">฿500</option>
-                                                <option value="1000">฿1000</option>
-                                                <option value="2000">฿2000+</option>
-                                            </select>
+                                            <input type="number" class="mr-2 form-control" name="max_price" placeholder="กรอกราคาสูงสุด">
                                         </div>
                                     </div>
                                     <button class="btn btn-block btn-primary mt-3" type="submit">ปรับแต่ง</button>

@@ -3,19 +3,7 @@ from .forms import RegistrationForm,LoginForm,ProfilePictureForm,ProfileSettingF
 from .models import Account
 from django.contrib import messages, auth
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse
-from django.contrib.sites.shortcuts import get_current_site
-from django.template.loader import render_to_string
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.utils.encoding import force_bytes
-from django.contrib.auth.tokens import default_token_generator
-from django.core.mail import EmailMessage
-from django.contrib.auth.models import User
-from carts.views import _cart_id
-from carts.models import Cart, CartItem
-import requests
 from django.contrib.auth import authenticate, login
-from orders.forms import OrderForm
 from orders.models import Order
 from django.forms.models import model_to_dict
 

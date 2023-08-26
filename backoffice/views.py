@@ -1,14 +1,12 @@
-from django.shortcuts import render,redirect,get_object_or_404
+from django.shortcuts import render,redirect
 from .forms import AdminLoginForms,AddCategoryForms
 from django.contrib.auth import authenticate,login as auth_login
 from django.contrib import messages,auth
-from django.http import HttpResponse
 from orders.models import Order,Payment,OrderProduct
 from category.models import Category
 from store.models import Product
 from django.db.models import Sum
 from django.utils import timezone
-from django.forms.models import model_to_dict
 
 # Create your views here.
 def login(request):

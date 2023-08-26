@@ -5,10 +5,8 @@ from carts.models import CartItem
 from django.db.models import Q
 from django.utils import timezone
 from carts.views import _cart_id
-from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
-from django.http import HttpResponse
+from django.core.paginator import Paginator
 from .forms import ReviewForm
-from django.contrib import messages
 from orders.models import OrderProduct
 from django.http import JsonResponse
 

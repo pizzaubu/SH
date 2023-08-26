@@ -1,16 +1,10 @@
 from django.shortcuts import render, redirect
-from django.http import HttpResponse, JsonResponse
 from carts.models import CartItem
 from .forms import OrderForm,PaymentForm
 import datetime
-from .models import Account, Order, Payment, OrderProduct
-import json
+from .models import Order, Payment, OrderProduct
 from store.models import Product, Coupon
-from django.core.mail import EmailMessage
-from django.contrib.auth import authenticate, login
-from django.template.loader import render_to_string
 from django.contrib.auth.decorators import login_required
-from django.contrib import messages
 
 @login_required(login_url='login')
 def payments(request):

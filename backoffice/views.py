@@ -15,20 +15,20 @@ def login(request):
         if admin_login.is_valid():
             username = admin_login.cleaned_data.get('username')
             password = admin_login.cleaned_data.get('password')
-            user = authenticate(request, username=username, password=password, superadmin=True)
-            if user is not None:
-                auth_login(request,user)
+            user = authenticate(request, username=username, password=password)
+            if user is not None and user.is_superadmin:  # ตรวจสอบว่า user มีสถานะเป็น superadmin หรือไม่
+                auth_login(request, user)
                 return redirect('admin_dashboard')
             else:
-                messages.error(request,'รหัสผ่านไม่ถูกต้อง')
+                messages.error(request, 'รหัสผ่านไม่ถูกต้อง หรือคุณไม่มีสิทธิ์เข้าใช้งานในส่วนนี้')
                 return redirect('backoffice_login')
-
     else:
         admin_login = AdminLoginForms()
         context = {
-            "admin_login":admin_login
+            "admin_login": admin_login
         }
-        return render(request, 'backoffice/login.html',context)
+        return render(request, 'backoffice/login.html', context)
+
 
 def logout(request):
     auth.logout(request)

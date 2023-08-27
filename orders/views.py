@@ -22,7 +22,7 @@ def payments(request):
             user = request.user
             payment = None
             
-            # Get the order with is_ordered=False for the current user
+            # รับคำสั่งซื้อที่มีสถานะ is_ordered เป็น False สำหรับผู้ใช้ปัจจุบัน
             order = Order.objects.filter(user=request.user, is_ordered=False).order_by("-created_at").first()
             if order: # if order is not None
                 payment = Payment(
